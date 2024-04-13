@@ -2,6 +2,13 @@ package version_with_interface
 
 class Validator(
 ) : CheckRules {
+    override var password: String = ""
+        set(value) {
+            field = checkPasswordExists(value)
+        }
+
+    private var fullCheckResult = true
+
     private val mapMessages = mapOf(
         0 to "Слишком короткий пароль",
         1 to "Пароль должен содержать минимум по одной букве в верхнем и нижнем регистре",
@@ -31,19 +38,17 @@ class Validator(
         println("")
     }
 
-    override fun getCheckResult(ruleNumber: Int): Boolean {
-        println(mapMessages.getOrElse(ruleNumber) {
+    override fun getFailMessage(ruleNumber: Int): String {
+        fullCheckResult = false
+        return (mapMessages.getOrElse(ruleNumber) {
             "Такого правила не существует"
         })
-
-        return if (mapMessages.contains(ruleNumber)) return true
-        else false
     }
 
-    fun checkPasswordExists (password: String) {
-        if (password.isEmpty()) {
+    private fun checkPasswordExists (pass: String): String {
+        if (pass.isEmpty()) {
             throw UserDataException("Для работы программы необходимо ввести пароль")
-        }
+        } else return pass
     }
 
     fun checkUserRulesExists(userRules: String): Set<String> {
@@ -58,6 +63,10 @@ class Validator(
         } else return userRule.toInt()
     }
 
+    fun printFullCheckResult() {
+        if (fullCheckResult) println("Проверка прошла успешно")
+        else println("Проверка прошла неудачно, выполнены не все требования к паролю")
+    }
 }
 
 class UserDataException(message: String) : IllegalStateException(message)

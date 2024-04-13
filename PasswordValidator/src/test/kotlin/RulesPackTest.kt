@@ -1,4 +1,3 @@
-import version_with_interface.RulesPack
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

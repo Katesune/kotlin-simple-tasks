@@ -5,27 +5,17 @@ import kotlin.math.abs
 import kotlin.math.log2
 
 interface CheckRules {
+    val password: String
+    val ruleLength: Int
+        get() = 8
+
+    val dict: Set<String>
+        get() = File("src/main/resources/pswd-dict.txt")
+            .readText()
+            .split("\n")
+            .toSet()
+
     fun getCheckResult(ruleNumber: Int): Boolean {
-        return false
-    }
-
-    fun checkRule(rule: CheckRules, ruleNumber: Int)  {
-        if (!getCheckResult(ruleNumber)) {
-            rule.getCheckResult(ruleNumber)
-        }
-    }
-}
-
-class RulesPack (
-    val password: String,
-) : CheckRules {
-    private val ruleLength = 8
-    private val dict = File("src/main/resources/pswd-dict.txt")
-        .readText()
-        .split("\n")
-        .toSet()
-
-    override fun getCheckResult(ruleNumber: Int): Boolean {
         return when (ruleNumber) {
             0 -> checkLength()
             1 -> checkCase()
@@ -33,6 +23,14 @@ class RulesPack (
             3 -> checkDictWord()
             4 -> checkEntropy()
             else -> false
+        }
+    }
+
+    fun getFailMessage(ruleNumber: Int): String
+
+    fun checkRule(ruleNumber: Int)  {
+        if (!getCheckResult(ruleNumber)) {
+            println(getFailMessage(ruleNumber))
         }
     }
 
