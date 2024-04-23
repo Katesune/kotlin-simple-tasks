@@ -1,17 +1,16 @@
 package org.example
 
+enum class Status {
+    ACTIVE,
+    INACTIVE,
+    REMOVED
+}
 open class User(
-    private var email: String,
-    private var nickName: String,
-    private var password: String,
-    private var status: Status = Status.ACTIVE,
-) {
-    enum class Status {
-        ACTIVE,
-        INACTIVE,
-        REMOVED
-    }
-
+    override var email: String,
+    override var nickName: String,
+    override var password: String,
+    override var status: Status = Status.ACTIVE,
+): UserManipulative {
     private val validatePassResult : (passwordToCheck: String) -> Boolean = {pass ->
         val validator = Validator(pass)
         validator.checkAllRules()
@@ -35,10 +34,51 @@ open class User(
     fun getUserDataWithoutPass(): String {
         return "$email,$nickName,$status"
     }
+//
+//    fun changeEmail(newEmail: String) {
+//        email = newEmail
+//    }
+//
+//    fun changeNickName(newNickName: String) {
+//        nickName = newNickName
+//    }
+//
+//    fun verifyPass(inputPassword: String): Boolean {
+//        return inputPassword == password
+//    }
+//
+//    fun changePass(newPassword: String) {
+//        if (validatePassResult(newPassword)) password = newPassword
+//        else println("Password does not comply with the rules")
+//    }
+//
+//    fun changeStatusToActive() {
+//        status = Status.ACTIVE
+//    }
+//
+//    fun changeStatusToInActive() {
+//        status = Status.INACTIVE
+//    }
+//
+//    fun changeStatusToRemoved() {
+//        status = Status.REMOVED
+//    }
 
-    fun getEmail(): String {
-        return email
-    }
+    // вынести все функции из юзера в интерфейс
+    // сделать так, чтобы параметры пользователя определялись сами
+}
+
+interface UserManipulative {
+    var email: String
+    var nickName: String
+    var password: String
+    var status: Status
+
+    private val validatePassResult : (passwordToCheck: String) -> Boolean
+        get() = { pass ->
+            val validator = Validator(pass)
+            validator.checkAllRules()
+        }
 
     fun changeEmail(newEmail: String) {
         email = newEmail
@@ -68,11 +108,7 @@ open class User(
     fun changeStatusToRemoved() {
         status = Status.REMOVED
     }
-
-    // вынести все функции из юзера в интерфейс
-    // сделать так, чтобы параметры пользователя определялись сами
 }
-
 
 class Admin(email: String, nickName: String, password: String) :
     User(email, nickName, password) {

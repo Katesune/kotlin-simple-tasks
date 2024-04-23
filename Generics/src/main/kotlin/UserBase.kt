@@ -1,6 +1,7 @@
+import org.example.Status
 import org.example.User
+import org.example.UserManipulative
 import java.io.File
-import kotlin.contracts.contract
 
 private val usersFromFile = File("data/users.txt")
     .readText()
@@ -10,18 +11,16 @@ private val usersFromFile = File("data/users.txt")
         User(data[0], data[1], data[2]) }.toMutableSet()
 
 
-class MutableUsersSet<User> : MutableSet<User> by mutableSetOf() {
-    override fun contains(element: User): Boolean {
-        return this.find { it == element } != null
-    }
-}
+//class MutableUsersSet<User> : MutableSet<User> by mutableSetOf() {
+//    override fun contains(element: User): Boolean {
+//        return this.find { it == element } != null
+//    }
+//}
 
-//operator fun MutableSet<User>.contains(element: User): Boolean = this.find { it == element } != null
+operator fun MutableSet<User>.contains(element: User): Boolean = this.find { it == element } != null
 
 class UserBase() {
-    private var users: MutableUsersSet<User> = try {
-        usersFromFile.toCollection(MutableUsersSet<User>())
-    } catch (e: UserBaseEditException) { MutableUsersSet<User>() }
+    private var users: MutableSet<User> = usersFromFile
 
     operator fun contains(email: String): Boolean {
         return users.find { it.equals(email) } != null
@@ -32,7 +31,7 @@ class UserBase() {
     }
 
     operator fun get(user: User): User {
-        return userOrException(users.find { it.equals(user.getEmail()) })
+        return userOrException(users.find { it.equals(user.email) })
     }
 
     fun getUserByEmail(email: String): User {
@@ -49,40 +48,42 @@ class UserBase() {
         else throw UserBaseEditException("The user you are trying to remove does not exist.")
     }
 
-    fun getUsers(): MutableUsersSet<User> {
+    fun getUsers(): MutableSet<User> {
         return users
     }
 }
 
-interface Manipulative {
+interface UserBaseManipulative: UserManipulative {
+    val userBase: UserBase
     val currentUser: User
+    override var email: String
+        get() = currentUser.email
+        set(value) {
+            currentUser.email = value
+        }
 
-    fun changeCurrentEmail(newEmail: String) {
-        currentUser.changeEmail(newEmail)
-    }
+    override var nickName: String
+        get() = currentUser.nickName
+        set(value) {
+            currentUser.nickName = value
+        }
 
-    fun changeCurrentNickName(newNickName: String) {
-        currentUser.changeNickName(newNickName)
-    }
+    override var password: String
+        get() = currentUser.password
+        set(value) {
+            currentUser.password = value
+        }
 
-    fun changeCurrentPassword(oldPassword: String, newPassword: String) {
-        if (currentUser.verifyPass(oldPassword)) {
-            currentUser.changePass(newPassword)
-        } else println("Incorrect password")
-    }
+    override var status: Status
+        get() = currentUser.status
+        set(value) {
+            currentUser.status = value
+        }
 
-    fun changeCurrentStatusToActive() {
-        currentUser.changeStatusToActive()
-    }
-
-    fun changeCurrentStatusToInActive() {
-        currentUser.changeStatusToInActive()
-    }
-
-    fun changeCurrentStatusToRemoved() {
-        currentUser.changeStatusToRemoved()
+    override fun changeEmail(newEmail: String) {
+        if (userBase.contains(newEmail)) println("A user with such an email already exists")
+        else super.changeEmail(newEmail)
     }
 }
-
 
 class UserBaseEditException(message: String): IllegalStateException(message)

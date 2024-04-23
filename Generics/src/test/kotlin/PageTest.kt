@@ -57,7 +57,7 @@ class PageTest {
         val expected = Unit
 
         assertAll(
-            { assertEquals(expected, personalPage.changeCurrentNickName("Yola")) },
+            { assertEquals(expected, personalPage.changeNickName("Yola")) },
             { assertEquals(expected, personalPage.printContent()) },
         )
     }
@@ -70,6 +70,7 @@ class PageTest {
     @Test
     fun displayEntireAdminPage() {
         assertAll(
+            { assertEquals(Unit, adminPage.changeNickName("Yola")) },
             { assertEquals(Unit, adminPage.openPage()) },
             { assertEquals(Unit, adminPage.printContent()) },
         )

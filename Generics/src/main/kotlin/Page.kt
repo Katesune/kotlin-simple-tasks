@@ -117,13 +117,13 @@ class Comment(
 
 class PersonalPage(
     initialUser: User,
-    private val userBase: UserBase,
+    override val userBase: UserBase,
 
-): Page<String>(), Manipulative {
+): Page<String>(), UserBaseManipulative {
     override val description: String = "Personal Account"
 
     override val currentUser = userBase[initialUser]
-    override val title: String = "${currentUser.getEmail()} personal page"
+    override val title = "Personal page"
 
     override fun printContent() {
         val currentUserData = currentUser.getUserDataWithoutPass().split(",")
@@ -136,18 +136,13 @@ class PersonalPage(
         printlnWithColors(mapColor)
         println()
     }
-
-    override fun changeCurrentEmail(newEmail: String) {
-        if (userBase.contains(newEmail)) println("A user with such an email already exists")
-        else super.changeCurrentEmail(newEmail)
-    }
 }
 
 class AdminPage(
     initialUser: Admin,
-    private val userBase: UserBase
+    override val userBase: UserBase
 
-): Page<User>(), Manipulative {
+): Page<User>(), UserBaseManipulative {
     override val title: String = "Admin Page"
     override val description = "The admin page allows users to view and edit information about other users who are using the resource."
 
@@ -166,11 +161,6 @@ class AdminPage(
             printlnWithColors(mapColor)
             println()
         }
-    }
-
-    override fun changeCurrentEmail(newEmail: String) {
-        if (userBase.contains(newEmail)) println("A user with such an email already exists")
-        else super.changeCurrentEmail(newEmail)
     }
 
     fun editAnotherUser(editUser: User) {

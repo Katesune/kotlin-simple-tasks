@@ -19,6 +19,9 @@ fun main() {
     adminPage.printContent()
 
     val personalPage = PersonalPage(currentUser, userBase)
+    personalPage.printContent()
+    personalPage.changeNickName("Yolla")
+    personalPage.changeEmail("fheiufhiefh@gmail")
     personalPage.openPage()
     personalPage.printContent()
 }

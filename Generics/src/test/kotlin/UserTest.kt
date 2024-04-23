@@ -1,3 +1,4 @@
+import org.example.Status
 import org.example.User
 import org.example.UserDataException
 import org.example.Validator
@@ -28,7 +29,7 @@ internal class UserTest {
     private val rightUserWithDiffEmail = User("katrin.akk@gmail.com", nickName, "Hdiw{w^fDe")
     private val rightUserWithDiffNickName = User(email, "Katrin", pass)
     private val rightUserWithDiffPass = User(email, nickName, "MegsD7^[2febn22S")
-    private val rightUserWithDiffStatus = User(email, nickName, pass, User.Status.REMOVED)
+    private val rightUserWithDiffStatus = User(email, nickName, pass, Status.REMOVED)
 
     @Test
     fun createUserWithEmptyProperties() {
@@ -56,7 +57,7 @@ internal class UserTest {
 
     @Test
     fun checkCorrectUserDataWithoutPass() {
-        val expected = "$email,$nickName,${User.Status.ACTIVE}"
+        val expected = "$email,$nickName,${Status.ACTIVE}"
         assertEquals(expected, rightUser.getUserDataWithoutPass())
     }
 
@@ -68,10 +69,10 @@ internal class UserTest {
             { assertTrue(rightUser == rightUserWithDiffPass) },
             { assertTrue(rightUser == rightUserWithDiffStatus) },
 
-            { assertFalse(rightUser.equals(rightUserWithDiffEmail.getEmail())) },
-            { assertTrue(rightUser.equals(rightUserWithDiffNickName.getEmail())) },
-            { assertTrue(rightUser.equals(rightUserWithDiffPass.getEmail())) },
-            { assertTrue(rightUser.equals(rightUserWithDiffStatus.getEmail())) },
+            { assertFalse(rightUser.equals(rightUserWithDiffEmail.email)) },
+            { assertTrue(rightUser.equals(rightUserWithDiffNickName.email)) },
+            { assertTrue(rightUser.equals(rightUserWithDiffPass.email)) },
+            { assertTrue(rightUser.equals(rightUserWithDiffStatus.email)) },
         )
     }
 
@@ -95,9 +96,9 @@ internal class UserTest {
 
     @Test
     fun changeUserStatus() {
-        val expectedActive = User.Status.ACTIVE
-        val expectedInActive = User.Status.INACTIVE
-        val expectedRemoved = User.Status.REMOVED
+        val expectedActive = Status.ACTIVE
+        val expectedInActive = Status.INACTIVE
+        val expectedRemoved = Status.REMOVED
 
         assertAll(
             { assertEquals(expectedActive, rightUserWithDiffStatus.changeStatusToActive()) },
