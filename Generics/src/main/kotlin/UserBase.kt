@@ -8,15 +8,14 @@ private val usersFromFile = File("data/users.txt")
     .split("\n")
     .map {
         val data = it.trim().split(",")
-        User(data[0], data[1], data[2]) }.toMutableSet()
-
+        if (data.size < 5) throw InputDataException("It is not possible to convert a string to a user class, there is not enough data")
+        User(data[0], data[1], data[2], Status.valueOf(data[3]), User.Role.valueOf(data[4])) }.toMutableSet()
 
 //class MutableUsersSet<User> : MutableSet<User> by mutableSetOf() {
 //    override fun contains(element: User): Boolean {
 //        return this.find { it == element } != null
 //    }
 //}
-
 operator fun MutableSet<User>.contains(element: User): Boolean = this.find { it == element } != null
 
 class UserBase() {
@@ -56,6 +55,7 @@ class UserBase() {
 interface UserBaseManipulative: UserManipulative {
     val userBase: UserBase
     val currentUser: User
+
     override var email: String
         get() = currentUser.email
         set(value) {
@@ -84,6 +84,14 @@ interface UserBaseManipulative: UserManipulative {
         if (userBase.contains(newEmail)) println("A user with such an email already exists")
         else super.changeEmail(newEmail)
     }
+
+    override fun changePass(newPassword: String) {
+        println("Please enter the old password")
+        val inputOldPass = readlnOrNull() ?: ""
+        if (verifyPass(inputOldPass)) super.changePass(newPassword)
+        else println("Invalid password")
+    }
 }
 
+class InputDataException(message: String): IllegalStateException(message)
 class UserBaseEditException(message: String): IllegalStateException(message)

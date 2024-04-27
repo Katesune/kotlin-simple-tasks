@@ -3,14 +3,23 @@ package org.example
 enum class Status {
     ACTIVE,
     INACTIVE,
-    REMOVED
+    REMOVED,
 }
+
 open class User(
     override var email: String,
-    override var nickName: String,
+    override var nickName: String = "",
     override var password: String,
     override var status: Status = Status.ACTIVE,
+    val role: Role = Role.USER
+
 ): UserManipulative {
+    enum class Role {
+        USER,
+        MODERATOR,
+        ADMIN,
+    }
+
     private val validatePassResult : (passwordToCheck: String) -> Boolean = {pass ->
         val validator = Validator(pass)
         validator.checkAllRules()
@@ -18,7 +27,7 @@ open class User(
 
     init {
         require(email.isNotEmpty()) {"Email must not be empty"}
-        require(nickName.isNotEmpty()) {"Nickname must not be empty"}
+        //require(nickName.isNotEmpty()) {"Nickname must not be empty"}
         require(password.isNotEmpty()) {"Password must not be empty"}
         require(validatePassResult(password)) {"Password does not comply with the rules"}
     }
@@ -34,6 +43,15 @@ open class User(
     fun getUserDataWithoutPass(): String {
         return "$email,$nickName,$status"
     }
+
+    fun toAdmin(): Admin {
+        return Admin(email, nickName, password)
+    }
+
+    fun toModerator(): Moderator {
+        return Moderator(email, nickName, password)
+    }
+
 //
 //    fun changeEmail(newEmail: String) {
 //        email = newEmail
@@ -97,17 +115,21 @@ interface UserManipulative {
         else println("Password does not comply with the rules")
     }
 
-    fun changeStatusToActive() {
-        status = Status.ACTIVE
+    fun changeStatus(newStatus: String) {
+        status = Status.valueOf(newStatus)
     }
 
-    fun changeStatusToInActive() {
-        status = Status.INACTIVE
-    }
-
-    fun changeStatusToRemoved() {
-        status = Status.REMOVED
-    }
+//    fun changeStatusToActive() {
+//        status = Status.ACTIVE
+//    }
+//
+//    fun changeStatusToInActive() {
+//        status = Status.INACTIVE
+//    }
+//
+//    fun changeStatusToRemoved() {
+//        status = Status.REMOVED
+//    }
 }
 
 class Admin(email: String, nickName: String, password: String) :

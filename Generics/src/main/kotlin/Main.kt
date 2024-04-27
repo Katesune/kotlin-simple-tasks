@@ -69,12 +69,23 @@ object WebSite {
         changeUserTypeBasedOnRole()
 
         while (beOnWebSite) {
-            navigator.printCurrentPagesMenu()
+            println("EMAIL FROM PAGE" + currentUser.email)
+            navigator.printCurrentPagesMenu(currentPage)
+
 
             when (val command = commandNum()) {
                 0 -> beOnWebSite = false
-                in 1..4 -> switchToPage(command)
-                5 -> editPersonalPage(getInputEditEmail())
+                in navigator.switchCommandsKeys() -> switchToPage(command)
+                in navigator.optionalCommandsKeys(currentPage) ->
+                {
+                    if (currentPage is AdminPage) {
+                        val editUserEmail = getInputEditEmail()
+                        editPersonalPage(navigator.getPersonalPageFromAdminPage(editUserEmail))
+                    }
+                    else if (currentPage is PersonalPage<*, *>) {
+                        editPersonalPage(navigator.getPersonalPage())
+                    }
+                }
                 else -> println("There is no such command")
             }
 
@@ -82,6 +93,7 @@ object WebSite {
     }
 
     private fun switchToPage(command: Int) {
+        println("user email - ${currentUser.email}")
         currentPage = navigator.getPageByCommand(command)
         currentPage.printWholePage()
     }
@@ -92,15 +104,13 @@ object WebSite {
         return readlnOrNull() ?: ""
     }
 
-    private fun editPersonalPage(editUserEmail: String) {
-        val editUserPage = navigator.getEditPersonalPage(editUserEmail)
-
-        editUserPage.printEditUserMenu()
+    private fun editPersonalPage(editUserPage: PersonalPage<*, *>) {
+        editUserPage.printEditMenu()
 
         val command = commandNum()
         editUserPage.editUserData(command)
 
+        currentUser = editUserPage.currentUser
         editUserPage.printWholePage()
     }
-
 }
