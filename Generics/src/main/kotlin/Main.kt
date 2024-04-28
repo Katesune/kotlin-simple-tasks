@@ -1,8 +1,8 @@
 package org.example
 
 import AdminPage
+import AvailableToSwitchPages
 import Navigator
-import NewsPage
 import Page
 import PersonalPage
 import UserBase
@@ -11,10 +11,7 @@ lateinit var currentUser: User
 fun main() {
     convertInputToUser()
 
-    if (WebSite.identify() && WebSite.checkAccessToEntry()) {
-        WebSite.browse()
-    } else println("Identification failed")
-
+    WebSite.browse()
 }
 private fun convertInputToUser() {
     println("Please enter your email address")
@@ -36,13 +33,18 @@ object WebSite {
 
     private val userBase = UserBase()
 
-    fun identify(): Boolean {
-        val userFromUserBase = userBase.getUserByEmail(currentUser.email)
-        return userFromUserBase.verifyPass(currentUser.password)
+    init {
+        if (checkAccessToEntry() && identify()) {
+            changeUserTypeBasedOnRole()
+        } else throw IllegalStateException("Identification failed")
     }
 
-    fun checkAccessToEntry(): Boolean {
+    private fun checkAccessToEntry(): Boolean {
         return currentUser.status == Status.ACTIVE
+    }
+    private fun identify(): Boolean {
+        val userFromUserBase = userBase.getUserByEmail(currentUser.email)
+        return userFromUserBase.verifyPass(currentUser.password)
     }
 
     private fun changeUserTypeBasedOnRole() {
@@ -53,11 +55,10 @@ object WebSite {
             User.Role.MODERATOR -> currentUser.toModerator()
             else -> currentUser
         }
-
-        navigator = Navigator(currentUser, userBase)
     }
 
-    private var navigator = Navigator(currentUser, userBase) // нужно изменить роль пользователя до создания навигатора
+    private val availablePages = AvailableToSwitchPages(currentUser, userBase)
+    private val navigator = Navigator(availablePages)
     private var currentPage: Page<out Any> = navigator.getPageByCommand(1)
 
     val commandNum: () -> Int = {
@@ -65,27 +66,30 @@ object WebSite {
         val inputCommand = readlnOrNull() ?: ""
         inputCommand.toIntOrNull() ?: throw IllegalStateException("The command could not be converted to a number.")
     }
+
     fun browse() {
-        changeUserTypeBasedOnRole()
-
         while (beOnWebSite) {
-            println("EMAIL FROM PAGE" + currentUser.email)
             navigator.printCurrentPagesMenu(currentPage)
-
 
             when (val command = commandNum()) {
                 0 -> beOnWebSite = false
                 in navigator.switchCommandsKeys() -> switchToPage(command)
                 in navigator.optionalCommandsKeys(currentPage) ->
                 {
-                    if (currentPage is AdminPage) {
-                        val editUserEmail = getInputEditEmail()
-                        editPersonalPage(navigator.getPersonalPageFromAdminPage(editUserEmail))
-                    }
-                    else if (currentPage is PersonalPage<*, *>) {
-                        editPersonalPage(navigator.getPersonalPage())
-                    }
+                    val optionEditCommand = navigator.editDataCommandsMenu(currentPage)[command]
+                        ?: throw IllegalStateException("No such command")
+
+                    editPersonalPage(optionEditCommand.executeCommand(currentPage))
                 }
+//                {
+//                    if (currentPage is AdminPage) {
+//                        val editUserEmail = getInputEditEmail()
+//                        editPersonalPage(navigator.getEditPageFromAdminPage())
+//                    }
+//                    else if (currentPage is PersonalPage<*, *>) {
+//                        editPersonalPage(currentPage as PersonalPage<*, *>)
+//                    }
+//                }
                 else -> println("There is no such command")
             }
 
@@ -93,15 +97,8 @@ object WebSite {
     }
 
     private fun switchToPage(command: Int) {
-        println("user email - ${currentUser.email}")
         currentPage = navigator.getPageByCommand(command)
         currentPage.printWholePage()
-    }
-
-
-    private fun getInputEditEmail(): String {
-        println("Please enter the address of the user whose data you want to edit")
-        return readlnOrNull() ?: ""
     }
 
     private fun editPersonalPage(editUserPage: PersonalPage<*, *>) {

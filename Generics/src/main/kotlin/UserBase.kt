@@ -6,10 +6,6 @@ import java.io.File
 private val usersFromFile = File("data/users.txt")
     .readText()
     .split("\n")
-    .map {
-        val data = it.trim().split(",")
-        if (data.size < 5) throw InputDataException("It is not possible to convert a string to a user class, there is not enough data")
-        User(data[0], data[1], data[2], Status.valueOf(data[3]), User.Role.valueOf(data[4])) }.toMutableSet()
 
 //class MutableUsersSet<User> : MutableSet<User> by mutableSetOf() {
 //    override fun contains(element: User): Boolean {
@@ -19,18 +15,33 @@ private val usersFromFile = File("data/users.txt")
 operator fun MutableSet<User>.contains(element: User): Boolean = this.find { it == element } != null
 
 class UserBase() {
-    private var users: MutableSet<User> = usersFromFile
+    private var users: MutableSet<User> = usersFromFile.map { convertToNewUser(it) }.toMutableSet()
+
+    fun convertToNewUser(newUserData: String): User {
+        val userData = newUserData.split(",").map { it.trim() }
+
+        return when (userData.size) {
+            5 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]), Status.valueOf(userData[4]))
+            4 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]))
+            3 -> User(userData[0], userData[1], userData[2])
+            else -> throw InputDataException("It is not possible to convert a string to a user class, the data is insufficient or redundant")
+        }
+    }
+
+    fun getUsers(): MutableSet<User> {
+        return users
+    }
 
     operator fun contains(email: String): Boolean {
         return users.find { it.equals(email) } != null
     }
 
-    private val userOrException: (user: User?) -> User = { user ->
-        user ?: throw UserBaseEditException("The user was not found.")
-    }
-
     operator fun get(user: User): User {
         return userOrException(users.find { it.equals(user.email) })
+    }
+
+    private val userOrException: (user: User?) -> User = { user ->
+        user ?: throw UserBaseEditException("The user was not found.")
     }
 
     fun getUserByEmail(email: String): User {
@@ -45,10 +56,6 @@ class UserBase() {
     operator fun minusAssign(userToRemove: User) {
         if (users.remove(userToRemove)) println("The user has been removed.")
         else throw UserBaseEditException("The user you are trying to remove does not exist.")
-    }
-
-    fun getUsers(): MutableSet<User> {
-        return users
     }
 }
 
@@ -86,10 +93,13 @@ interface UserBaseManipulative: UserManipulative {
     }
 
     override fun changePass(newPassword: String) {
+        if (verifyPass()) super.changePass(newPassword)
+        else println("Invalid password")
+    }
+    fun verifyPass(): Boolean {
         println("Please enter the old password")
         val inputOldPass = readlnOrNull() ?: ""
-        if (verifyPass(inputOldPass)) super.changePass(newPassword)
-        else println("Invalid password")
+        return super.verifyPass(inputOldPass)
     }
 }
 

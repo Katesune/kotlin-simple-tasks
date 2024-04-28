@@ -10,8 +10,8 @@ open class User(
     override var email: String,
     override var nickName: String = "",
     override var password: String,
+    val role: Role = Role.USER,
     override var status: Status = Status.ACTIVE,
-    val role: Role = Role.USER
 
 ): UserManipulative {
     enum class Role {
@@ -51,39 +51,14 @@ open class User(
     fun toModerator(): Moderator {
         return Moderator(email, nickName, password)
     }
+}
 
-//
-//    fun changeEmail(newEmail: String) {
-//        email = newEmail
-//    }
-//
-//    fun changeNickName(newNickName: String) {
-//        nickName = newNickName
-//    }
-//
-//    fun verifyPass(inputPassword: String): Boolean {
-//        return inputPassword == password
-//    }
-//
-//    fun changePass(newPassword: String) {
-//        if (validatePassResult(newPassword)) password = newPassword
-//        else println("Password does not comply with the rules")
-//    }
-//
-//    fun changeStatusToActive() {
-//        status = Status.ACTIVE
-//    }
-//
-//    fun changeStatusToInActive() {
-//        status = Status.INACTIVE
-//    }
-//
-//    fun changeStatusToRemoved() {
-//        status = Status.REMOVED
-//    }
+class Admin(email: String, nickName: String, password: String) :
+    User(email, nickName, password) {
+}
 
-    // вынести все функции из юзера в интерфейс
-    // сделать так, чтобы параметры пользователя определялись сами
+class Moderator(email: String, nickName: String, password: String) :
+    User(email, nickName, password) {
 }
 
 interface UserManipulative {
@@ -106,36 +81,16 @@ interface UserManipulative {
         nickName = newNickName
     }
 
-    fun verifyPass(inputPassword: String): Boolean {
-        return inputPassword == password
-    }
-
     fun changePass(newPassword: String) {
         if (validatePassResult(newPassword)) password = newPassword
         else println("Password does not comply with the rules")
     }
 
+    fun verifyPass(inputPassword: String): Boolean {
+        return inputPassword == password
+    }
+
     fun changeStatus(newStatus: String) {
         status = Status.valueOf(newStatus)
     }
-
-//    fun changeStatusToActive() {
-//        status = Status.ACTIVE
-//    }
-//
-//    fun changeStatusToInActive() {
-//        status = Status.INACTIVE
-//    }
-//
-//    fun changeStatusToRemoved() {
-//        status = Status.REMOVED
-//    }
-}
-
-class Admin(email: String, nickName: String, password: String) :
-    User(email, nickName, password) {
-}
-
-class Moderator(email: String, nickName: String, password: String) :
-    User(email, nickName, password) {
 }

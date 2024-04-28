@@ -5,6 +5,7 @@ import kotlin.reflect.KFunction1
 open class Page <T> () {
     open val title: String = "Simple Page"
     open val description: String = "A page"
+
     val resetColor = "\u001B[0m"
 
     open val contents: MutableList<T> = mutableListOf()
@@ -37,6 +38,11 @@ open class Page <T> () {
         return "\u001b[48;2" + rgbColors[colorName]
     }
 
+    fun printWholePage() {
+        openPage()
+        printContent()
+    }
+
     open fun openPage() {
         println(getBgColor(ColorNames.WHITE) + getTextColor(ColorNames.GRAY) + title + resetColor)
         println("$description\n")
@@ -53,11 +59,6 @@ open class Page <T> () {
         for (t in text) {
             println(t.key + t.value + resetColor)
         }
-    }
-
-    fun printWholePage() {
-        openPage()
-        printContent()
     }
 }
 
@@ -126,10 +127,10 @@ class PersonalPage<out T: User, U>(
     override val userBase: UserBase,
 
 ): Page<String>(), UserBaseManipulative {
+    override val title = "Personal page"
     override val description: String = "Personal Account"
 
     override val currentUser = userBase[initialUser]
-    override val title = "Personal page"
 
     override fun printContent() {
         val currentUserData = currentUser.getUserDataWithoutPass().split(",")
@@ -144,7 +145,8 @@ class PersonalPage<out T: User, U>(
     }
     class ChangeDataCommand(
         val description: String,
-        val command: KFunction1<String, Unit>) {
+        val command: KFunction1<String, Unit>
+    ) {
         fun executeCommand(replacement: String) {
             command(replacement)
         }
@@ -166,34 +168,15 @@ class PersonalPage<out T: User, U>(
         }
     }
 
-    private fun executeEditCommand(commandNum: Int, replacement: String) {
-       editCommands()[commandNum]?.executeCommand(replacement) ?: println("The command was not recognized")
-    }
-
-//    fun printEditUserMenu() {
-//        for ((commandNumber, description)  in commands) {
-//            println("$commandNumber - $description")
-//        }
-//    }
-//
-//    private fun executeCommand(command:Int, replacement: String) {
-//        when (command) {
-//            0 -> changeEmail(replacement)
-//            1 -> changeNickName(replacement)
-//            2 -> changePass(replacement)
-//            3 -> changeStatusToInActive()
-//            4 -> changeStatusToRemoved()
-//            5 -> changeStatusToActive()
-//            else -> println("The command was not recognized")
-//        }
-//    }
-
     fun editUserData(commandNum: Int) {
         println("Please enter the new value")
         val replacement = readlnOrNull() ?: ""
         executeEditCommand(commandNum, replacement)
     }
 
+    private fun executeEditCommand(commandNum: Int, replacement: String) {
+       editCommands()[commandNum]?.executeCommand(replacement) ?: println("The command was not recognized")
+    }
 }
 
 class AdminPage(
@@ -224,6 +207,12 @@ class AdminPage(
     fun getEditUserPage(editUserEmail: String): PersonalPage<User, UserBase> {
         val editUser = userBase.getUserByEmail(editUserEmail)
         return PersonalPage(editUser, userBase)
+    }
+
+    fun addNewUser(newUserData: String): User {
+        val newUser = userBase.convertToNewUser(newUserData)
+        userBase += newUser
+        return userBase[newUser]
     }
 
 }
