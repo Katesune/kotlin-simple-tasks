@@ -155,10 +155,10 @@ class PersonalPage<out T: User, U>(
     val editCommands: () -> Map<Int, ChangeDataCommand> = {
         val email = currentUser.email
         mapOf(
-            0 to ChangeDataCommand("Change $email email" , ::changeEmail),
-            1 to ChangeDataCommand("Change $email nick name", ::changeNickName),
-            2 to ChangeDataCommand("Change $email password", ::changePass),
-            3 to ChangeDataCommand("Change $email status", ::changeStatus),
+            1 to ChangeDataCommand("Change $email email" , ::changeEmail),
+            2 to ChangeDataCommand("Change $email nick name", ::changeNickName),
+            3 to ChangeDataCommand("Change $email password", ::changePass),
+            4 to ChangeDataCommand("Change $email status", ::changeStatus),
         )
     }
 
@@ -202,11 +202,6 @@ class AdminPage(
             printlnWithColors(mapColor)
             println()
         }
-    }
-
-    fun getEditUserPage(editUserEmail: String): PersonalPage<User, UserBase> {
-        val editUser = userBase.getUserByEmail(editUserEmail)
-        return PersonalPage(editUser, userBase)
     }
 
     fun addNewUser(newUserData: String): User {

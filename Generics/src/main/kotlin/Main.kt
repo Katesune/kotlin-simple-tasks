@@ -1,7 +1,6 @@
 package org.example
 
 import AdminPage
-import AvailableToSwitchPages
 import Navigator
 import Page
 import PersonalPage
@@ -57,11 +56,10 @@ object WebSite {
         }
     }
 
-    private val availablePages = AvailableToSwitchPages(currentUser, userBase)
-    private val navigator = Navigator(availablePages)
+    private val navigator = Navigator(currentUser, userBase)
     private var currentPage: Page<out Any> = navigator.getPageByCommand(1)
 
-    val commandNum: () -> Int = {
+    val recycleCommandToInt: () -> Int = {
         println("Please enter the command number")
         val inputCommand = readlnOrNull() ?: ""
         inputCommand.toIntOrNull() ?: throw IllegalStateException("The command could not be converted to a number.")
@@ -69,30 +67,20 @@ object WebSite {
 
     fun browse() {
         while (beOnWebSite) {
-            navigator.printCurrentPagesMenu(currentPage)
+            navigator.currentPage = currentPage
 
-            when (val command = commandNum()) {
+            navigator.printExitCommand()
+            navigator.printCurrentPagesMenu()
+
+            when (val commandNum = recycleCommandToInt()) {
                 0 -> beOnWebSite = false
-                in navigator.switchCommandsKeys() -> switchToPage(command)
-                in navigator.optionalCommandsKeys(currentPage) ->
-                {
-                    val optionEditCommand = navigator.editDataCommandsMenu(currentPage)[command]
-                        ?: throw IllegalStateException("No such command")
-
-                    editPersonalPage(optionEditCommand.executeCommand(currentPage))
+                in navigator.switchCommandsKeys() -> switchToPage(commandNum)
+                in navigator.optionalCommandsKeys() -> {
+                    changeUserDataInPersonalPage(commandNum)
+                    navigator.updateSwitchCommands()
                 }
-//                {
-//                    if (currentPage is AdminPage) {
-//                        val editUserEmail = getInputEditEmail()
-//                        editPersonalPage(navigator.getEditPageFromAdminPage())
-//                    }
-//                    else if (currentPage is PersonalPage<*, *>) {
-//                        editPersonalPage(currentPage as PersonalPage<*, *>)
-//                    }
-//                }
                 else -> println("There is no such command")
             }
-
         }
     }
 
@@ -101,13 +89,20 @@ object WebSite {
         currentPage.printWholePage()
     }
 
-    private fun editPersonalPage(editUserPage: PersonalPage<*, *>) {
-        editUserPage.printEditMenu()
+    private fun changeUserDataInPersonalPage(command: Int) {
+        val editCommandNum = navigator.getEditCommand(command)
+        val editPage = editCommandNum.getCurrentEditPage()
 
-        val command = commandNum()
-        editUserPage.editUserData(command)
-
-        currentUser = editUserPage.currentUser
-        editUserPage.printWholePage()
+        printEditPageMenu(editPage)
+        val editCommand = recycleCommandToInt()
+        
+        if (editCommand != 0) {
+            editCommandNum.runChangingDataProcess(editPage, editCommand)
+        }
+    }
+    
+    private fun printEditPageMenu(editPage: PersonalPage<User, UserBase>) {
+        navigator.printExitCommand()
+        editPage.printEditMenu()
     }
 }
