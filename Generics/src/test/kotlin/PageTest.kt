@@ -2,13 +2,13 @@ import org.example.Admin
 import org.example.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayInputStream
 
-class PageTest {
+internal class PageTest {
     // NewsPage
     private val news = mutableListOf(
         News("Two singers have released a new fit", "A lot of people liked the new song", "singer,fit,release"),
         News("The city needs volunteers", "Volunteers will help toads cross the road", "volunteer,road,toads"),
-        News("The theater will show a reinterpretation of Hamlet", "The reinterpretation will be very different from the original", "theater,Hamlet")
     )
 
     private val newsPage = NewsPage("Latest news", news)
@@ -18,6 +18,7 @@ class PageTest {
         assertAll(
             { assertEquals(Unit, newsPage.openPage()) },
             { assertEquals(Unit, newsPage.printContent()) },
+            { assertEquals(Unit, newsPage.printWholePage()) },
         )
     }
 
@@ -25,8 +26,6 @@ class PageTest {
     private val comments = mutableListOf(
         Comment("naco4@gmail.com", "Add more colors", 25),
         Comment("dopemm4@gmail.com", "Add reactions to comments", 23),
-        Comment("sagreo-6749@gmail.com", "Publish more news about animals", 17),
-        Comment("dellaye952@gmail.com", "Change the font on the main page", 9),
     )
 
     private val commentsPage = CommentsPage("Latest comments", comments)
@@ -40,40 +39,163 @@ class PageTest {
     }
 
     //PersonalPage
-    private val currentUser = User("katesune.akk@gmail.com", "Katesune", "kEn8djb^Jbcf9")
+    private val currentUser = User("katesune", "Katesune", "kEn8djb^Jbcf9")
     private val userBase = UserBase()
-    private val personalPage = PersonalPage(currentUser, userBase)
+    private val personalPage = PersonalPage<User, Any>(currentUser, userBase)
 
     @Test
     fun displayEntirePersonalPage() {
         assertAll(
             { assertEquals(Unit, personalPage.openPage()) },
             { assertEquals(Unit, personalPage.printContent()) },
+            { assertEquals(Unit, personalPage.printWholePage()) },
+        )
+    }
+
+    // Testing change user data functions from UserManipulative interface
+    @Test
+    fun changePersonalEmail() {
+        val expected = Unit
+        val emptyEmailException = assertThrows(InputDataException::class.java) {
+            personalPage.changeEmail("")
+        }
+
+        assertAll(
+            { assertEquals("New data must not be blank", emptyEmailException.message) },
+            { assertEquals(expected, personalPage.changeEmail("bobaGin@gmail.com")) },
+            { assertEquals(expected, personalPage.printContent()) },
         )
     }
 
     @Test
-    fun changeNick() {
+    fun changePersonalNick() {
         val expected = Unit
+        val emptyNickException = assertThrows(InputDataException::class.java) {
+            personalPage.changeNickName("")
+        }
 
         assertAll(
+            { assertEquals("New data must not be blank", emptyNickException.message) },
             { assertEquals(expected, personalPage.changeNickName("Yola")) },
             { assertEquals(expected, personalPage.printContent()) },
         )
     }
 
+    @Test
+    fun changePersonalStatus() {
+        val expected = Unit
+
+        assertAll(
+            { assertEquals(expected, personalPage.changeStatus("INACTIVE")) },
+            { assertEquals(expected, println(personalPage.status)) },
+            { assertEquals(expected, personalPage.changeStatus("REMOVED")) },
+            { assertEquals(expected, println(personalPage.status)) },
+            { assertEquals(expected, personalPage.changeStatus("ACTIVE")) },
+            { assertEquals(expected, println(personalPage.status)) },
+        )
+    }
+
+    // Testing change command catalog
+
+    @Test
+    fun displayChangeCatalog() {
+        val expected = Unit
+        assertEquals(expected, personalPage.printChangeCatalog())
+    }
+
+    @Test
+    fun changeEmailWithChangeCatalog() {
+        val successReplacementEmail = "barbos@gmail.com"
+
+        val expected = Unit
+        val emptyEmailException = assertThrows(InputDataException::class.java) {
+            personalPage.executeChangeCommand(1, "")
+        }
+
+        assertAll(
+            { assertEquals(expected, personalPage.executeChangeCommand(1, successReplacementEmail)) },
+            { assertEquals("New data must not be blank", emptyEmailException.message) },
+        )
+    }
+
+    @Test
+    fun changeNickNameWithChangeCatalog() {
+        val successReplacementNickName = "Barbos"
+
+        val expected = Unit
+        val emptyNickNameException = assertThrows(InputDataException::class.java) {
+            personalPage.executeChangeCommand(2, "")
+        }
+
+        assertAll(
+            { assertEquals(expected, personalPage.executeChangeCommand(2, successReplacementNickName)) },
+            { assertEquals("New data must not be blank", emptyNickNameException.message) },
+        )
+    }
+
+    @Test
+    fun changeStatusWithChangeCatalog() {
+        val replacementStatusActive = "ACTIVE"
+        val replacementStatusInActive = "INACTIVE"
+        val replacementStatusRemoved = "REMOVED"
+
+        val invalidReplacementStatus = "SUSPENDED"
+
+        val expected = Unit
+
+        val emptyStatusException = assertThrows(IllegalArgumentException::class.java) {
+            personalPage.executeChangeCommand(4, "")
+        }
+
+        val invalidStatusException = assertThrows(IllegalArgumentException::class.java) {
+            personalPage.executeChangeCommand(4, invalidReplacementStatus)
+        }
+
+        assertAll(
+            { assertEquals(expected, personalPage.executeChangeCommand(4, replacementStatusInActive)) },
+            { assertEquals(expected, println(personalPage.currentUser.status)) },
+            { assertEquals(expected, personalPage.executeChangeCommand(4, replacementStatusRemoved)) },
+            { assertEquals(expected, println(personalPage.currentUser.status)) },
+            { assertEquals(expected, personalPage.executeChangeCommand(4, replacementStatusActive)) },
+            { assertEquals(expected, println(personalPage.currentUser.status)) },
+            { assertEquals("No enum constant org.example.Status.", emptyStatusException.message) },
+            { assertEquals("No enum constant org.example.Status.SUSPENDED", invalidStatusException.message) },
+        )
+    }
+
+    @Test
+    fun getInvalidChangeCommandMessage() {
+        val replacement = "barbos@gmail"
+        val expected = Unit
+
+        assertEquals(expected, personalPage.executeChangeCommand(5, replacement))
+    }
+
     //AdminPage
 
     private val admin = Admin("Koshka@gmail.com", "Koshka", "fO[wf^^WUcn")
-    private val adminPage = AdminPage(admin, userBase)
+    private val adminPage = AdminPage(userBase)
 
     @Test
     fun displayEntireAdminPage() {
         assertAll(
-            { assertEquals(Unit, adminPage.changeNickName("Yola")) },
             { assertEquals(Unit, adminPage.openPage()) },
             { assertEquals(Unit, adminPage.printContent()) },
+            { assertEquals(Unit, adminPage.printWholePage()) },
         )
     }
+
+    @Test
+    fun testAddNewUser() {
+        val newUserData = "barbos@gmail.com, Barbos, kEn8djb^Jbcf9"
+        val newUser = userBase.convertToNewUserByRole(newUserData)
+
+        assertAll(
+            { assertEquals(newUser, adminPage.addNewUser(newUserData)) },
+            { assertTrue(userBase.contains(newUser.email)) }
+        )
+
+    }
+
 
 }

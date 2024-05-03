@@ -1,8 +1,5 @@
 import org.example.*
-import kotlin.math.E
-import kotlin.math.ceil
 import kotlin.reflect.KFunction0
-import kotlin.reflect.KFunction1
 
 val news = mutableListOf(
     News("Two singers have released a new fit", "A lot of people liked the new song", "singer,fit,release"),
@@ -22,9 +19,9 @@ class Navigator <out T: User> (
     override val userBase: UserBase
 
 ): Switchable<T>, Editable {
-    override var switchCommands = getSwitchCommandsByUserRole()
+    override var switchCommandsCatalog = getSwitchCommandsByUserRole()
 
-    override val initialNum = switchCommands.keys.max() + 1
+    override val nextNumCatalog = switchCommandsCatalog.keys.max() + 1
     override var currentPage = getPageByCommand(1)
 
     fun printExitCommand() {
@@ -32,24 +29,27 @@ class Navigator <out T: User> (
         println("0 - Exit")
     }
 
-    fun printCurrentPagesMenu() {
-        printSwitchCommands()
+    fun printCommandsCatalog() {
+        printExitCommand()
 
-        for ((commandNumber, command) in getEditCommandsMenu()) {
-            println("$commandNumber - ${command.description}")
-        }
+        printSwitchCatalog()
+        printEditCatalog()
     }
 
     fun getPageByCommand(commandNumber: Int): Page<out Any> {
-        return switchCommands[commandNumber]?.page ?: throw PagesException("There is no page with this number")
+        return switchCommandsCatalog[commandNumber]?.switchPage ?: throw PagesException("There is no page with this number")
     }
 
+//    override fun getEditCommand(commandNum: Int): EditCommand {
+//        return currentPage.getEditCommandsCatalog(nextNumCatalog)[commandNum] ?: throw IllegalStateException("No such command")
+//    }
+
     fun switchCommandsKeys(): Set<Int> {
-        return switchCommands.keys
+        return switchCommandsCatalog.keys
     }
 
     fun optionalCommandsKeys(): Set<Int> {
-        return getEditCommandsMenu().keys
+        return getEditCommandsCatalog().keys
     }
 }
 
@@ -59,20 +59,20 @@ interface Switchable<out T: User> {
 
     class SwitchCommand(
         val description: String,
-        val page: Page<out Any>
+        val switchPage: Page<out Any>
     )
 
-    var switchCommands: Map<Int, SwitchCommand>
+    var switchCommandsCatalog: Map<Int, SwitchCommand>
 
-    fun printSwitchCommands() {
-        for ((commandNum, switchCommand) in switchCommands) {
+    fun printSwitchCatalog() {
+        for ((commandNum, switchCommand) in switchCommandsCatalog) {
             println("$commandNum - ${switchCommand.description}")
         }
     }
     fun getSwitchCommandsByUserRole(): Map<Int, SwitchCommand> {
-        switchCommands = getBasicSwitchCommands()
-        setSwitchCommandsByUserRole(switchCommands.keys.max() + 1)
-        return switchCommands
+        switchCommandsCatalog = getBasicSwitchCommands()
+        setSwitchCommandsByUserRole(switchCommandsCatalog.keys.max() + 1)
+        return switchCommandsCatalog
     }
 
     private fun getBasicSwitchCommands(): Map <Int, SwitchCommand> {
@@ -94,9 +94,9 @@ interface Switchable<out T: User> {
 
     private fun setOptionalAdminSwitchCommands(initialNumber: Int) {
         val commentsPage = CommentsPage("Latest comments", comments)
-        val adminPage = AdminPage(currentUser as Admin, userBase)
+        val adminPage = AdminPage(userBase)
 
-        switchCommands += mapOf(
+        switchCommandsCatalog += mapOf(
             initialNumber to SwitchCommand("Switch to Comments Page", commentsPage),
             initialNumber + 1 to SwitchCommand("Switch to the Admin Page", adminPage)
         )
@@ -105,19 +105,19 @@ interface Switchable<out T: User> {
     private fun setOptionalModeratorSwitchCommands(initialNumber: Int) {
         val commentsPage = CommentsPage("Latest comments", comments)
 
-        switchCommands += mapOf(
+        switchCommandsCatalog += mapOf(
             initialNumber to SwitchCommand("Switch to Comments Page", commentsPage)
         )
     }
 
-    fun updateSwitchCommands() {
-        switchCommands = getSwitchCommandsByUserRole()
+    fun updateSwitchCatalog() {
+        switchCommandsCatalog = getSwitchCommandsByUserRole()
     }
 }
 
 interface Editable {
     val userBase: UserBase
-    val initialNum: Int
+    val nextNumCatalog: Int
     var currentPage: Page<out Any>
 
     class EditCommand(
@@ -128,26 +128,32 @@ interface Editable {
             return getEditPage()
         }
         fun runChangingDataProcess(editPage: PersonalPage<User, UserBase>, commandNum: Int) {
-            editPage.editUserData(commandNum)
+            editPage.processChangeUser(commandNum)
             editPage.printWholePage()
         }
     }
 
-    fun getEditCommandsMenu(): Map<Int, EditCommand> {
+    fun printEditCatalog() {
+        for ((commandNumber, command) in getEditCommandsCatalog()) {
+            println("$commandNumber - ${command.description}")
+        }
+    }
+
+    fun getEditCommandsCatalog(): Map<Int, EditCommand> {
         return when (currentPage) {
             is AdminPage -> mapOf(
-                    initialNum to EditCommand("Edit users data", ::getEditPageByEmail),
-                    initialNum + 1 to EditCommand("Add new user", ::createNewUserPage),
+                nextNumCatalog to EditCommand("Edit users data", ::getEditPageByEmail),
+                nextNumCatalog + 1 to EditCommand("Add new user", ::createNewUserPage),
                 )
             is PersonalPage<*, *> -> mapOf(
-                initialNum to EditCommand("Edit personal data", ::convertCurrentPageToPersonal)
+                nextNumCatalog to EditCommand("Edit personal data", ::convertCurrentPageToPersonal)
             )
             else -> mapOf()
         }
     }
 
     fun getEditCommand(commandNum: Int): EditCommand {
-        return getEditCommandsMenu()[commandNum] ?: throw IllegalStateException("No such command")
+        return getEditCommandsCatalog()[commandNum] ?: throw IllegalStateException("No such command")
     }
 
     private fun getEditPageByEmail(): PersonalPage<User, UserBase> {

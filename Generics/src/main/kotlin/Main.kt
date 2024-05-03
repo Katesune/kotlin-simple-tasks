@@ -69,40 +69,39 @@ object WebSite {
         while (beOnWebSite) {
             navigator.currentPage = currentPage
 
-            navigator.printExitCommand()
-            navigator.printCurrentPagesMenu()
+            navigator.printCommandsCatalog()
 
             when (val commandNum = recycleCommandToInt()) {
                 0 -> beOnWebSite = false
                 in navigator.switchCommandsKeys() -> switchToPage(commandNum)
                 in navigator.optionalCommandsKeys() -> {
                     changeUserDataInPersonalPage(commandNum)
-                    navigator.updateSwitchCommands()
+                    navigator.updateSwitchCatalog()
                 }
                 else -> println("There is no such command")
             }
         }
     }
 
-    private fun switchToPage(command: Int) {
-        currentPage = navigator.getPageByCommand(command)
+    private fun switchToPage(inputCommandNum: Int) {
+        currentPage = navigator.getPageByCommand(inputCommandNum)
         currentPage.printWholePage()
     }
 
-    private fun changeUserDataInPersonalPage(command: Int) {
-        val editCommandNum = navigator.getEditCommand(command)
-        val editPage = editCommandNum.getCurrentEditPage()
+    private fun changeUserDataInPersonalPage(inputCommandNum: Int) {
+        val editCommand = navigator.getEditCommand(inputCommandNum)
+        val editPage = editCommand.getCurrentEditPage()
 
-        printEditPageMenu(editPage)
-        val editCommand = recycleCommandToInt()
+        printEditPageCatalog(editPage)
+        val inputEditCommand = recycleCommandToInt()
         
-        if (editCommand != 0) {
-            editCommandNum.runChangingDataProcess(editPage, editCommand)
+        if (inputEditCommand != 0) {
+            editCommand.runChangingDataProcess(editPage, inputEditCommand)
         }
     }
     
-    private fun printEditPageMenu(editPage: PersonalPage<User, UserBase>) {
+    private fun printEditPageCatalog(editPage: PersonalPage<User, UserBase>) {
         navigator.printExitCommand()
-        editPage.printEditMenu()
+        editPage.printChangeCatalog()
     }
 }

@@ -8,7 +8,7 @@ enum class Status {
 
 open class User(
     override var email: String,
-    override var nickName: String = "",
+    override var nickName: String = "NickName",
     override var password: String,
     val role: Role = Role.USER,
     override var status: Status = Status.ACTIVE,
@@ -27,7 +27,7 @@ open class User(
 
     init {
         require(email.isNotEmpty()) {"Email must not be empty"}
-        //require(nickName.isNotEmpty()) {"Nickname must not be empty"}
+        require(nickName.isNotEmpty()) {"Nickname must not be empty"}
         require(password.isNotEmpty()) {"Password must not be empty"}
         require(validatePassResult(password)) {"Password does not comply with the rules"}
     }

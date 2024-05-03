@@ -7,24 +7,28 @@ private val usersFromFile = File("data/users.txt")
     .readText()
     .split("\n")
 
-//class MutableUsersSet<User> : MutableSet<User> by mutableSetOf() {
-//    override fun contains(element: User): Boolean {
-//        return this.find { it == element } != null
-//    }
-//}
-operator fun MutableSet<User>.contains(element: User): Boolean = this.find { it == element } != null
-
 class UserBase() {
-    private var users: MutableSet<User> = usersFromFile.map { convertToNewUser(it) }.toMutableSet()
+    private var users: MutableSet<User> = usersFromFile.map { convertToNewUserByRole(it) }.toMutableSet()
 
-    fun convertToNewUser(newUserData: String): User {
+    fun convertToNewUserByRole(newUserData: String): User {
         val userData = newUserData.split(",").map { it.trim() }
 
+        val user = convertDataToUser(userData)
+
+        return when (user.role) {
+            User.Role.USER -> user
+            User.Role.MODERATOR -> user.toModerator()
+            else -> user.toAdmin()
+        }
+    }
+
+    private fun convertDataToUser(userData: List<String>): User  {
         return when (userData.size) {
-            5 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]), Status.valueOf(userData[4]))
-            4 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]))
+            in 0..2 -> throw InputDataException("There is not enough data to convert the user")
             3 -> User(userData[0], userData[1], userData[2])
-            else -> throw InputDataException("It is not possible to convert a string to a user class, the data is insufficient or redundant")
+            4 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]))
+            5 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]), Status.valueOf(userData[4]))
+            else -> throw throw InputDataException("The data to convert to a user is redundant")
         }
     }
 
@@ -66,18 +70,21 @@ interface UserBaseManipulative: UserManipulative {
     override var email: String
         get() = currentUser.email
         set(value) {
+            if (value.isEmpty()) throw InputDataException("New data must not be blank")
             currentUser.email = value
         }
 
     override var nickName: String
         get() = currentUser.nickName
         set(value) {
+            if (value.isEmpty()) throw InputDataException("New data must not be blank")
             currentUser.nickName = value
         }
 
     override var password: String
         get() = currentUser.password
         set(value) {
+            if (value.isEmpty()) throw InputDataException("New data must not be blank")
             currentUser.password = value
         }
 

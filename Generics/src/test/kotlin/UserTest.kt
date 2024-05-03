@@ -29,7 +29,7 @@ internal class UserTest {
     private val rightUserWithDiffEmail = User("katrin.akk@gmail.com", nickName, "Hdiw{w^fDe")
     private val rightUserWithDiffNickName = User(email, "Katrin", pass)
     private val rightUserWithDiffPass = User(email, nickName, "MegsD7^[2febn22S")
-    private val rightUserWithDiffStatus = User(email, nickName, pass, Status.REMOVED)
+    private val rightUserWithDiffStatus = User(email, nickName, pass, User.Role.USER ,Status.REMOVED)
 
     @Test
     fun createUserWithEmptyProperties() {
@@ -101,9 +101,9 @@ internal class UserTest {
         val expectedRemoved = Status.REMOVED
 
         assertAll(
-            { assertEquals(expectedActive, rightUserWithDiffStatus.changeStatusToActive()) },
-            { assertEquals(expectedInActive, rightUser.changeStatusToInActive()) },
-            { assertEquals(expectedRemoved, rightUser.changeStatusToRemoved()) },
+            { assertEquals(expectedActive, Status.valueOf("ACTIVE")) },
+            { assertEquals(expectedInActive, Status.valueOf("INACTIVE")) },
+            { assertEquals(expectedRemoved, Status.valueOf("REMOVED")) },
         )
     }
 

@@ -1,5 +1,7 @@
 import org.example.Admin
 import org.example.User
+import org.example.currentUser
+import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 
 open class Page <T> () {
@@ -62,6 +64,21 @@ open class Page <T> () {
     }
 }
 
+class EditCommand(
+    val description: String,
+    private val getEditPage: KFunction0<PersonalPage<User, UserBase>>
+) {
+    fun getCurrentEditPage(): PersonalPage<User, UserBase> {
+        return getEditPage()
+    }
+
+    fun runChangingDataProcess(editPage: PersonalPage<User, UserBase>, commandNum: Int) {
+        editPage.processChangeUser(commandNum)
+        editPage.printWholePage()
+    }
+}
+
+
 class NewsPage(
     override val title: String = "News Page",
     override val contents: MutableList<News>
@@ -123,14 +140,12 @@ class Comment(
 ) {}
 
 class PersonalPage<out T: User, U>(
-    initialUser: T,
+    override val currentUser: T,
     override val userBase: UserBase,
 
 ): Page<String>(), UserBaseManipulative {
     override val title = "Personal page"
     override val description: String = "Personal Account"
-
-    override val currentUser = userBase[initialUser]
 
     override fun printContent() {
         val currentUserData = currentUser.getUserDataWithoutPass().split(",")
@@ -145,14 +160,14 @@ class PersonalPage<out T: User, U>(
     }
     class ChangeDataCommand(
         val description: String,
-        val command: KFunction1<String, Unit>
+        val changeData: KFunction1<String, Unit>
     ) {
         fun executeCommand(replacement: String) {
-            command(replacement)
+            changeData(replacement)
         }
     }
 
-    val editCommands: () -> Map<Int, ChangeDataCommand> = {
+    val changeCommandsCatalog: () -> Map<Int, ChangeDataCommand> = {
         val email = currentUser.email
         mapOf(
             1 to ChangeDataCommand("Change $email email" , ::changeEmail),
@@ -162,33 +177,35 @@ class PersonalPage<out T: User, U>(
         )
     }
 
-    fun printEditMenu() {
-        for (command in editCommands()) {
+    fun printChangeCatalog() {
+        for (command in changeCommandsCatalog()) {
             println(command.key.toString() + " - " + command.value.description)
         }
     }
 
-    fun editUserData(commandNum: Int) {
-        println("Please enter the new value")
-        val replacement = readlnOrNull() ?: ""
-        executeEditCommand(commandNum, replacement)
+    fun processChangeUser(inputCommandNum: Int) {
+        val replacement = getReplacement()
+        executeChangeCommand(inputCommandNum, replacement)
     }
 
-    private fun executeEditCommand(commandNum: Int, replacement: String) {
-       editCommands()[commandNum]?.executeCommand(replacement) ?: println("The command was not recognized")
+    private fun getReplacement(): String {
+        println("Please enter the new value")
+        return readlnOrNull() ?: throw IllegalStateException("New data must not be blank")
+    }
+
+    fun executeChangeCommand(inputCommandNum: Int, replacement: String) {
+        changeCommandsCatalog()[inputCommandNum]?.executeCommand(replacement) ?: println("The command was not recognized")
     }
 }
 
 class AdminPage(
-    initialUser: Admin,
-    override val userBase: UserBase
+    private val userBase: UserBase
 
-): Page<User>(), UserBaseManipulative {
+): Page<User>() {
     override val title: String = "Admin Page"
     override val description = "The admin page allows users to view and edit information about other users who are using the resource."
 
     override val contents = userBase.getUsers().toMutableList()
-    override val currentUser = userBase[initialUser]
 
     override fun printContent() {
         for (content in contents) {
@@ -205,11 +222,8 @@ class AdminPage(
     }
 
     fun addNewUser(newUserData: String): User {
-        val newUser = userBase.convertToNewUser(newUserData)
+        val newUser = userBase.convertToNewUserByRole(newUserData)
         userBase += newUser
         return userBase[newUser]
     }
-
 }
-
-
