@@ -7,9 +7,9 @@ internal class NavigatorTest {
 
     private val userBase = UserBase()
 
-    private val admin = userBase.getUserByEmail("katesune").toAdmin()
-    private val moderator = userBase.getUserByEmail("Koshka@gmail.com").toModerator()
-    private val basicUser = userBase.getUserByEmail("polina")
+    private val admin = userBase.getUserByEmail("frog@mail.com").toAdmin()
+    private val moderator = userBase.getUserByEmail("cat@gmail.com").toModerator()
+    private val basicUser = userBase.getUserByEmail("lizard@gmail.com")
 
     private val adminNavigator = Navigator(admin, userBase)
     private val moderatorNavigator = Navigator(moderator, userBase)
@@ -18,13 +18,13 @@ internal class NavigatorTest {
     @Test
     fun getPagesByCommandForAdmin() {
 
-        val getPagesException = assertThrows(PagesException::class.java) {
+        val getPagesException = assertThrows(SearchPagesException::class.java) {
             adminNavigator.getPageByCommand(5)
         }
 
         assertAll(
             { assertTrue(adminNavigator.getPageByCommand(1) is NewsPage) },
-            { assertTrue(adminNavigator.getPageByCommand(2) is PersonalPage<*, *>) },
+            { assertTrue(adminNavigator.getPageByCommand(2) is PersonalPage<*>) },
             { assertTrue(adminNavigator.getPageByCommand(3) is CommentsPage) },
             { assertTrue(adminNavigator.getPageByCommand(4) is AdminPage) },
             { assertEquals("There is no page with this number", getPagesException.message) }
@@ -34,13 +34,13 @@ internal class NavigatorTest {
     @Test
     fun getPagesByCommandForModerator() {
 
-        val getPagesException = assertThrows(PagesException::class.java) {
+        val getPagesException = assertThrows(SearchPagesException::class.java) {
             moderatorNavigator.getPageByCommand(4)
         }
 
         assertAll(
             { assertTrue(moderatorNavigator.getPageByCommand(1) is NewsPage) },
-            { assertTrue(moderatorNavigator.getPageByCommand(2) is PersonalPage<*, *>) },
+            { assertTrue(moderatorNavigator.getPageByCommand(2) is PersonalPage<*>) },
             { assertTrue(moderatorNavigator.getPageByCommand(3) is CommentsPage) },
             { assertEquals("There is no page with this number", getPagesException.message) }
         )
@@ -49,13 +49,13 @@ internal class NavigatorTest {
     @Test
     fun getPagesByCommandForBasicUser() {
 
-        val getPagesException = assertThrows(PagesException::class.java) {
+        val getPagesException = assertThrows(SearchPagesException::class.java) {
             basicNavigator.getPageByCommand(3)
         }
 
         assertAll(
             { assertTrue(basicNavigator.getPageByCommand(1) is NewsPage) },
-            { assertTrue(basicNavigator.getPageByCommand(2) is PersonalPage<*, *>) },
+            { assertTrue(basicNavigator.getPageByCommand(2) is PersonalPage<*>) },
             { assertEquals("There is no page with this number", getPagesException.message) }
         )
     }
@@ -104,7 +104,7 @@ internal class NavigatorTest {
 
         val expected = Unit
 
-        val accessCommentsForUserException = assertThrows(PagesException::class.java) {
+        val accessCommentsForUserException = assertThrows(SearchPagesException::class.java) {
             basicNavigator.getPageByCommand(3)
         }
 
@@ -124,11 +124,11 @@ internal class NavigatorTest {
 
         val expected = Unit
 
-        val accessAdminForUserException = assertThrows(PagesException::class.java) {
+        val accessAdminForUserException = assertThrows(SearchPagesException::class.java) {
             basicNavigator.getPageByCommand(4)
         }
 
-        val accessAdminForModeratorException = assertThrows(PagesException::class.java) {
+        val accessAdminForModeratorException = assertThrows(SearchPagesException::class.java) {
             moderatorNavigator.getPageByCommand(4)
         }
 
@@ -144,19 +144,19 @@ internal class NavigatorTest {
 
     @Test
     fun changeAdminDataAndAdminPageTogether() {
-        val personalPage = adminNavigator.getPageByCommand(2) as PersonalPage<User, UserBase>
+        val personalPage = adminNavigator.getPageByCommand(2) as PersonalPage<User>
         personalPage.executeChangeCommand(1, "barbos@gmail.com")
 
         val changedUser = personalPage.currentUser
         adminNavigator.updateSwitchCatalog()
 
-        assertEquals(changedUser, (adminNavigator.getPageByCommand(2) as PersonalPage<User, UserBase>).currentUser)
+        assertEquals(changedUser, (adminNavigator.getPageByCommand(2) as PersonalPage<User>).currentUser)
     }
 
     // interface Editable
     @Test
     fun printEditCommandsForPersonalPage() {
-        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User, UserBase>
+        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User>
         assertEquals(Unit, adminNavigator.printEditCatalog())
     }
 
@@ -168,7 +168,7 @@ internal class NavigatorTest {
 
     @Test
     fun invalidEditCommandPersonalPage() {
-        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User, UserBase>
+        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User>
 
         val editCommandExceptionBeforeEditable = assertThrows(IllegalStateException::class.java) {
             adminNavigator.getEditCommand(4)
@@ -186,7 +186,7 @@ internal class NavigatorTest {
 
     @Test
     fun invalidEditCommandAdminPage() {
-        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User, UserBase>
+        adminNavigator.currentPage = adminNavigator.getPageByCommand(2) as PersonalPage<User>
 
         val editCommandExceptionBeforeEditable = assertThrows(IllegalStateException::class.java) {
             adminNavigator.getEditCommand(4)

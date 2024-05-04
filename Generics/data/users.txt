@@ -1,0 +1,6 @@
+lizard@gmail.com, lizard, kEn8djb^Jbf9, ACTIVE, USER
+frog@mail.com, frog, kE[H^gTf9, ACTIVE, ADMIN
+bull@yopmail.com, bull, r?yn4y^I.7, ACTIVE, USER
+scorpion@yopmail.com, scorpion, fE^bet0*Kn, INACTIVE, USER
+horse@mail.com, horse, o[Gl$N*5R9, REMOVED, USER
+cat@gmail.com, cat, fO[wf^^WUcn, ACTIVE, MODERATOR

@@ -24,8 +24,8 @@ internal class PageTest {
 
     //CommentsPage
     private val comments = mutableListOf(
-        Comment("naco4@gmail.com", "Add more colors", 25),
-        Comment("dopemm4@gmail.com", "Add reactions to comments", 23),
+        Comment("cat@gmail.com", "Add more colors", 25),
+        Comment("cat@gmail.com", "Add reactions to comments", 23),
     )
 
     private val commentsPage = CommentsPage("Latest comments", comments)
@@ -39,9 +39,9 @@ internal class PageTest {
     }
 
     //PersonalPage
-    private val currentUser = User("katesune", "Katesune", "kEn8djb^Jbcf9")
+    private val currentUser = User("frog@mail.com", "frog", "kE[H^gTf9")
     private val userBase = UserBase()
-    private val personalPage = PersonalPage<User, Any>(currentUser, userBase)
+    private val personalPage = PersonalPage<User>(currentUser, userBase)
 
     @Test
     fun displayEntirePersonalPage() {
@@ -105,7 +105,7 @@ internal class PageTest {
 
     @Test
     fun changeEmailWithChangeCatalog() {
-        val successReplacementEmail = "barbos@gmail.com"
+        val successReplacementEmail = "rabbit@gmail.com"
 
         val expected = Unit
         val emptyEmailException = assertThrows(InputDataException::class.java) {
@@ -120,7 +120,7 @@ internal class PageTest {
 
     @Test
     fun changeNickNameWithChangeCatalog() {
-        val successReplacementNickName = "Barbos"
+        val successReplacementNickName = "rabbit"
 
         val expected = Unit
         val emptyNickNameException = assertThrows(InputDataException::class.java) {
@@ -165,7 +165,7 @@ internal class PageTest {
 
     @Test
     fun getInvalidChangeCommandMessage() {
-        val replacement = "barbos@gmail"
+        val replacement = "rabbit@gmail"
         val expected = Unit
 
         assertEquals(expected, personalPage.executeChangeCommand(5, replacement))
@@ -173,7 +173,7 @@ internal class PageTest {
 
     //AdminPage
 
-    private val admin = Admin("Koshka@gmail.com", "Koshka", "fO[wf^^WUcn")
+    private val admin = Admin("frog@mail.com", "frog", "kE[H^gTf9")
     private val adminPage = AdminPage(userBase)
 
     @Test
@@ -187,7 +187,7 @@ internal class PageTest {
 
     @Test
     fun testAddNewUser() {
-        val newUserData = "barbos@gmail.com, Barbos, kEn8djb^Jbcf9"
+        val newUserData = "rabbit@gmail.com, rabbit, kEn8djb^Jbcf9"
         val newUser = userBase.convertToNewUserByRole(newUserData)
 
         assertAll(

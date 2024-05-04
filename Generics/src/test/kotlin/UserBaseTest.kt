@@ -9,56 +9,56 @@ import javax.management.relation.Role
 internal class UserBaseTest {
     private val userBase = UserBase()
 
-    private val emailFromBase = "polina"
-    private val nickNameFromBase = "Polina"
-    private val passFromBase = "kEn8djb^Jbcf9"
+    private val emailFromBase = "frog@mail.com"
+    private val nickNameFromBase = "frog"
+    private val passFromBase = "kE[H^gTf9"
 
-    private val emailNotFromBase = "new_email@gmail.com"
-    private val nickNameNotFromBase = "New Email"
-    private val passNotFromBase = "Hts^wp]Qe^fwi"
+    private val emailNotFromBase = "rabbit@gmail.com"
+    private val nickNameNotFromBase = "rabbit"
+    private val passNotFromBase = "kEn8djb^Jbcf9"
 
     private val userFromBase = User(emailFromBase, nickNameFromBase, passFromBase)
     private val userNotFromBase = User(emailNotFromBase, nickNameNotFromBase, passNotFromBase)
 
-    // Test UsersSet<User> with override contains(User)
-
     @Test
     fun successConvertingDataToUser() {
-        val fullUser = User("barbos@gmail.com", "Barbos", "kEn8djb^Jbcf9", User.Role.USER, Status.ACTIVE)
-        val fullUserData = "barbos@gmail.com, Barbos, kEn8djb^Jbcf9, USER, ACTIVE"
+        val userData = listOf(emailNotFromBase,nickNameNotFromBase, passNotFromBase)
 
-        val userWithoutStatus = User("barbos@gmail.com", "Barbos", "kEn8djb^Jbcf9", User.Role.USER)
-        val userDataWithoutStatus = "barbos@gmail.com, Barbos, kEn8djb^Jbcf9, USER"
+        val fullUser = User(userData[0], userData[1], userData[2], Status.ACTIVE, User.Role.USER)
+        val fullUserData = "${userData.joinToString(",")}, ACTIVE, USER"
 
-        val userWithoutStatusAndRole = User("barbos@gmail.com", "Barbos", "kEn8djb^Jbcf9")
-        val userDataWithoutStatusAndRole = "barbos@gmail.com, Barbos, kEn8djb^Jbcf9"
+        val userWithoutRole = User(userData[0], userData[1], userData[2],  Status.ACTIVE)
+        val userDataWithoutRole = "${userData.joinToString(",")}, ACTIVE"
+
+        val userWithoutStatusAndRole = User(userData[0], userData[1], userData[2])
+        val userDataWithoutStatusAndRole = userData.joinToString(",")
 
         assertAll(
             { assertEquals(fullUser, userBase.convertToNewUserByRole(fullUserData)) },
-            { assertEquals(userWithoutStatus, userBase.convertToNewUserByRole(userDataWithoutStatus)) },
+            { assertEquals(userWithoutRole, userBase.convertToNewUserByRole(userDataWithoutRole)) },
             { assertEquals(userWithoutStatusAndRole, userBase.convertToNewUserByRole(userDataWithoutStatusAndRole)) },
         )
     }
 
     @Test
     fun convertingDataToUserByRole() {
-        val basicUserData = listOf("barbos@gmail.com", "Barbos", "kEn8djb^Jbcf9")
+        val basicUserData = listOf(emailNotFromBase,nickNameNotFromBase, passNotFromBase)
 
         assertAll(
-            { assertTrue(userBase.convertToNewUserByRole(basicUserData.toString()) is User)},
-            { assertTrue(userBase.convertToNewUserByRole("$basicUserData, MODERATOR") is Moderator)},
-            { assertTrue(userBase.convertToNewUserByRole("$basicUserData, ADMIN") is Admin) },
+            { assertTrue(userBase.convertToNewUserByRole("$basicUserData, ACTIVE, MODERATOR") is Moderator)},
+            { assertTrue(userBase.convertToNewUserByRole("$basicUserData, ACTIVE, ADMIN") is Admin) },
         )
     }
 
     @Test
     fun failConvertingDataToUser() {
         val exceptionNotEnoughData = assertThrows(InputDataException::class.java) {
+            userBase.convertToNewUserByRole("$emailNotFromBase, $nickNameNotFromBase")
             userBase.convertToNewUserByRole("barbos@gmail.com, Barbos")
         }
 
         val exceptionTooMuchData = assertThrows(InputDataException::class.java) {
-            userBase.convertToNewUserByRole("barbos@gmail.com, Barbos, kEn8djb^Jbcf9, USER, ACTIVE, wiifw;d")
+            userBase.convertToNewUserByRole("$emailNotFromBase, $nickNameNotFromBase, $passNotFromBase, USER, ACTIVE, wiifw;d")
         }
 
         assertAll(

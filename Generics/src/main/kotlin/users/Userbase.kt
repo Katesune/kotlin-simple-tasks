@@ -1,6 +1,4 @@
-import org.example.Status
-import org.example.User
-import org.example.UserManipulative
+import org.example.*
 import java.io.File
 
 private val usersFromFile = File("data/users.txt")
@@ -20,14 +18,27 @@ class UserBase() {
             User.Role.MODERATOR -> user.toModerator()
             else -> user.toAdmin()
         }
+
     }
 
     private fun convertDataToUser(userData: List<String>): User  {
         return when (userData.size) {
             in 0..2 -> throw InputDataException("There is not enough data to convert the user")
-            3 -> User(userData[0], userData[1], userData[2])
-            4 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]))
-            5 -> User(userData[0], userData[1], userData[2], User.Role.valueOf(userData[3]), Status.valueOf(userData[4]))
+            3 -> User(
+                email = userData[0],
+                nickName = userData[1],
+                password = userData[2])
+            4 -> User(
+                email = userData[0],
+                nickName = userData[1],
+                password = userData[2],
+                status = Status.valueOf(userData[3]))
+            5 -> User(
+                email = userData[0],
+                nickName = userData[1],
+                password = userData[2],
+                status = Status.valueOf(userData[3]),
+                role = User.Role.valueOf(userData[4]))
             else -> throw throw InputDataException("The data to convert to a user is redundant")
         }
     }
@@ -63,6 +74,8 @@ class UserBase() {
     }
 }
 
+class UserBaseEditException(message: String): IllegalStateException(message)
+
 interface UserBaseManipulative: UserManipulative {
     val userBase: UserBase
     val currentUser: User
@@ -71,6 +84,7 @@ interface UserBaseManipulative: UserManipulative {
         get() = currentUser.email
         set(value) {
             if (value.isEmpty()) throw InputDataException("New data must not be blank")
+            userBase.getUserByEmail(email).email = value
             currentUser.email = value
         }
 
@@ -78,6 +92,7 @@ interface UserBaseManipulative: UserManipulative {
         get() = currentUser.nickName
         set(value) {
             if (value.isEmpty()) throw InputDataException("New data must not be blank")
+            userBase.getUserByEmail(email).nickName = value
             currentUser.nickName = value
         }
 
@@ -85,12 +100,14 @@ interface UserBaseManipulative: UserManipulative {
         get() = currentUser.password
         set(value) {
             if (value.isEmpty()) throw InputDataException("New data must not be blank")
+            userBase.getUserByEmail(email).password = value
             currentUser.password = value
         }
 
     override var status: Status
         get() = currentUser.status
         set(value) {
+            userBase.getUserByEmail(email).status = value
             currentUser.status = value
         }
 
@@ -111,4 +128,3 @@ interface UserBaseManipulative: UserManipulative {
 }
 
 class InputDataException(message: String): IllegalStateException(message)
-class UserBaseEditException(message: String): IllegalStateException(message)

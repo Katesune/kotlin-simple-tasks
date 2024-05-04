@@ -21,15 +21,15 @@ internal class UserTest {
         )
     }
 
-    private val email = "katesune.akk@gmail.com"
-    private val nickName = "Katesune"
-    private val pass = "Hdiw{w^fDe"
+    private val email = "frog@mail.com"
+    private val nickName = "frog"
+    private val pass = "kE[H^gTf9"
 
     private val rightUser = User(email, nickName, pass)
-    private val rightUserWithDiffEmail = User("katrin.akk@gmail.com", nickName, "Hdiw{w^fDe")
-    private val rightUserWithDiffNickName = User(email, "Katrin", pass)
+    private val rightUserWithDiffEmail = User("rabbit@gmail.com", nickName, pass)
+    private val rightUserWithDiffNickName = User(email, "rabbit", pass)
     private val rightUserWithDiffPass = User(email, nickName, "MegsD7^[2febn22S")
-    private val rightUserWithDiffStatus = User(email, nickName, pass, User.Role.USER ,Status.REMOVED)
+    private val rightUserWithDiffStatus = User(email, nickName, pass, Status.REMOVED, User.Role.USER )
 
     @Test
     fun createUserWithEmptyProperties() {

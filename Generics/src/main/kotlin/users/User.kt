@@ -10,8 +10,8 @@ open class User(
     override var email: String,
     override var nickName: String = "NickName",
     override var password: String,
-    val role: Role = Role.USER,
     override var status: Status = Status.ACTIVE,
+    open val role: Role = Role.USER,
 
 ): UserManipulative {
     enum class Role {
@@ -19,6 +19,19 @@ open class User(
         MODERATOR,
         ADMIN,
     }
+
+    constructor(
+        email: String,
+        nickName: String,
+        password: String,
+        status: Status,
+    ) : this (
+        email = email,
+        nickName = nickName,
+        password = password,
+        status = status,
+        role = Role.USER,
+    )
 
     private val validatePassResult : (passwordToCheck: String) -> Boolean = {pass ->
         val validator = Validator(pass)
@@ -44,21 +57,23 @@ open class User(
         return "$email,$nickName,$status"
     }
 
-    fun toAdmin(): Admin {
-        return Admin(email, nickName, password)
-    }
-
     fun toModerator(): Moderator {
-        return Moderator(email, nickName, password)
+        return Moderator(email, nickName, password, status)
+    }
+    fun toAdmin(): Admin {
+        return Admin(email, nickName, password, status)
     }
 }
+class Moderator(email: String, nickName: String, password: String, status: Status = Status.ACTIVE) :
+    User(email, nickName, password, status) {
+    override val role: Role = Role.MODERATOR
 
-class Admin(email: String, nickName: String, password: String) :
-    User(email, nickName, password) {
 }
 
-class Moderator(email: String, nickName: String, password: String) :
+
+class Admin(email: String, nickName: String, password: String, status: Status = Status.ACTIVE) :
     User(email, nickName, password) {
+    override val role: Role = Role.ADMIN
 }
 
 interface UserManipulative {

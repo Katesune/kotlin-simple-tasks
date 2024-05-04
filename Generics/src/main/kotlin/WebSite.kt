@@ -1,6 +1,5 @@
 package org.example
 
-import AdminPage
 import Navigator
 import Page
 import PersonalPage
@@ -92,16 +91,12 @@ object WebSite {
         val editCommand = navigator.getEditCommand(inputCommandNum)
         val editPage = editCommand.getCurrentEditPage()
 
-        printEditPageCatalog(editPage)
+        navigator.printExitCommand()
+        editPage.printChangeCatalog()
         val inputEditCommand = recycleCommandToInt()
         
         if (inputEditCommand != 0) {
             editCommand.runChangingDataProcess(editPage, inputEditCommand)
         }
-    }
-    
-    private fun printEditPageCatalog(editPage: PersonalPage<User, UserBase>) {
-        navigator.printExitCommand()
-        editPage.printChangeCatalog()
     }
 }
