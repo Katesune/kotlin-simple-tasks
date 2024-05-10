@@ -61,4 +61,3 @@ data class AreaFigure(var height: Int, var width: Int) {
         return result
     }
 }
-

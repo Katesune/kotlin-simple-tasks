@@ -10,6 +10,11 @@ class AreaFigureTest {
     private val biggerAreaFigure = AreaFigure(4, 10)
 
     @Test
+    fun testToString() {
+        assertEquals(Unit, println(areaFigure.toString()))
+    }
+
+    @Test
     fun joinAreaFigure() {
         val expected = AreaFigure(3, 8)
 
@@ -139,7 +144,5 @@ class AreaFigureTest {
 
         assertEquals(expectedList, startAreaFigure.rangeTo(smallerAreaFigure))
     }
-
-
 
 }
