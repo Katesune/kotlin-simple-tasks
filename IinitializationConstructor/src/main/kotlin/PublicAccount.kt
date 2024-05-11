@@ -1,60 +1,51 @@
 abstract class PublicAccount(
 
-) : Tracked {
-    abstract override val favoriteContent: MutableSet<Content>
+) : Tracked, Liked {
+    override var likesCount = 0
 
-    open fun displayMainInformation() {
-        for (favorite in favoriteContent) {
-            println(favorite.title + " " + favorite.popularity)
-        }
+    abstract val favoriteContent: MutableSet<Liked>
+
+    fun addToFavoriteContent(content: Liked) {
+        favoriteContent += content
     }
 
-    open fun displayFavoriteContent() {
-        println(favoriteContent.joinToString(", ") { it.title })
+    val purpleColor = "\u001b[38;2;108;65;244m"
+    val resetColor = "\u001B[0m"
+
+    fun displayLikedContent() {
+        println("Favorite content: ")
+        if (favoriteContent.isEmpty()) print("Not found")
+        for (favorite in favoriteContent) {
+            displayLikedContent(favorite)
+        }
+        println()
     }
 }
 
 class User (
-    private val email: String,
-    private val nickName: String,
-    val contentCollection: Set<Content> = mutableSetOf<Content>()
-
+    email: String,
+    val nickName: String,
 ): PublicAccount() {
-    override val favoriteContent = mutableSetOf<Content>()
+    override val favoriteContent = mutableSetOf<Liked>()
 
     init {
         require(email.isNotBlank()) { "The email should not be blank." }
         require(nickName.isNotBlank()) { "The nick name should not be blank." }
     }
 
-    override var likesCount = 0
-        set(value) {
-            field += value
-        }
-
-    override fun likeIt(content: Content) {
-        favoriteContent += content
-        super.likeIt(content)
-    }
-
     override fun displayMainInformation() {
-        println(nickName)
-        super.displayMainInformation()
-    }
-
-    override fun displayFavoriteContent() {
-        println("Current user $nickName favorite content:")
-        super.displayFavoriteContent()
+        println("$purpleColor$nickName $resetColor")
     }
 
 }
 
 class Community (
-    private val title: String,
-    private var peopleCount: Int
+    val title: String,
+    var peopleCount: Int
 
 ): PublicAccount() {
-    override val favoriteContent = mutableSetOf<Content>()
+    override var likesCount = peopleCount
+    override val favoriteContent = mutableSetOf<Liked>()
 
     init {
         require(title.isNotBlank()) { "The title should not be blank." }
@@ -69,25 +60,13 @@ class Community (
 
     private var rating = 0
 
-    override var likesCount = 0
-        set(value) {
-            rating += value
-            field += value
-        }
-
-    override fun likeIt(content: Content) {
-        content.likesCount = peopleCount
-        super.likeIt(content)
+    override fun likeIt(content: Liked) {
+        content.likesCount += peopleCount
+        addToFavoriteContent(content)
     }
 
     override fun displayMainInformation() {
-        println("$title ; people = $peopleCount")
-        super.displayMainInformation()
-    }
-
-    override fun displayFavoriteContent() {
-        println("Current community $title favorite content:")
-        super.displayFavoriteContent()
+        println("Community: \"$purpleColor$title$resetColor\"; $peopleCount subscribers")
     }
 
     override fun requestForAccess(content: Content) {

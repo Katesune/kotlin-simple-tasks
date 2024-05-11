@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.io.Serial
 
 class ContentTest {
     private val fullMovieTitle = "Parasite"
@@ -44,6 +45,26 @@ class ContentTest {
         assertAll(
             { assertEquals("The title should not be blank.", emptyTitleException.message) },
             { assertEquals("The description should not be blank.", emptyDescriptionException.message) },
+        )
+    }
+
+    @Test
+    fun displayMovieData() {
+        val movie = Movie(fullMovieTitle, fullMovieYear, fullMovieGenres, fullMovieDescription, fullMovieDuration)
+
+        assertAll(
+            { assertEquals(Unit, movie.displayMainInformation()) },
+            { assertEquals(Unit, movie.displayLikes()) },
+        )
+    }
+
+    @Test
+    fun displaySerialData() {
+        val series = TvSeries(fullSeriesTitle, fullSeriesGenres, fullSeriesDescription, fullSeriesEpisodesNum, fullSeriesEpisodeDuration)
+
+        assertAll(
+            { assertEquals(Unit, series.displayMainInformation()) },
+            { assertEquals(Unit, series.displayLikes()) },
         )
     }
 }

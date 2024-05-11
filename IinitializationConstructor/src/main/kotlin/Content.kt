@@ -5,7 +5,7 @@ abstract class Content (
     private val description: String,
     var accessForWatching: AccessForWatching
 
-) {
+): Liked {
     abstract val duration: Int
 
     init {
@@ -13,10 +13,7 @@ abstract class Content (
         require(description.isNotBlank()) { "The description should not be blank." }
     }
 
-    var likesCount = 0
-        set(value) {
-            field += value
-        }
+    override var likesCount = 0
 
     abstract val popularity: String
 
@@ -28,7 +25,7 @@ abstract class Content (
     private val availableForWatchColor = "\u001b[38;2;92;99;175m"
     private val unAvailableForWatchColor = "\u001b[38;108;65;244m"
 
-    fun displayMainInformation() {
+    override fun displayMainInformation() {
         println("\n" + titleBgColor + titleTextColor + title + resetColor)
         println(description)
         for (genre in genres) {
@@ -40,8 +37,8 @@ abstract class Content (
         println(resetColor)
     }
 
-    fun displayLikes() {
-        println("\n$titleBgColor$titleTextColor$title$resetColor likes - $likesCount\n")
+    override fun displayLikes() {
+        println("\n$titleBgColor$titleTextColor$title$resetColor Likes - $likesCount\n")
     }
 
 }

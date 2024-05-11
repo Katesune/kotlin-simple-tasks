@@ -57,37 +57,18 @@ class Storage() {
 
     val users = listOf(
         User("lili.akk@gmail.com", "Lili"),
-        User("nina@mail.com", "Nina"),
-        User("ron@gmail.com", "Ron")
+        // User("nina@mail.com", "Nina"),
+       // User("ron@gmail.com", "Ron")
     )
 
     val communities = listOf(
         Community("The best movies",25),
-        Community("TV series fans", 46),
-        Community("News")
+        //Community("TV series fans", 46),
+       // Community("News")
     )
 
-}
+    val communitiesContent = listOf(
+        Community("TV series fans", 46),
+    )
 
-interface Tracked {
-    var likesCount: Int
-    val favoriteContent: MutableSet<Content>
-
-    fun likeIt(content: Tracked) {
-        content.likesCount = 1
-    }
-
-    fun likeIt(content: Content) {
-        content.likesCount = 1
-        favoriteContent += content
-    }
-
-    fun requestForAccess(content: Content) {
-        if (content.accessForWatching == AccessForWatching.AVAILABLE)
-            println("Access is already allowed")
-        else {
-            content.accessForWatching = AccessForWatching.AVAILABLE
-            println("Access is allowed")
-        }
-    }
 }

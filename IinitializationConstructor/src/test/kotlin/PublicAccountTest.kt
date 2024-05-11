@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Assertions.*
+import kotlin.math.exp
 import kotlin.test.Test
 
 class PublicAccountTest {
@@ -7,7 +8,7 @@ class PublicAccountTest {
     private val storage = Storage()
 
     private val movie = storage.movies[0]
-    private val serial = storage.series[0]
+    private val series = storage.series[0]
 
     @Test
     fun controlEmptyUserProperties() {
@@ -29,11 +30,11 @@ class PublicAccountTest {
         val expected = 1
 
         user.likeIt(movie)
-        user.likeIt(serial)
+        user.likeIt(series)
 
         assertAll(
             { assertEquals(expected, movie.likesCount) },
-            { assertEquals(expected, serial.likesCount) },
+            { assertEquals(expected, series.likesCount) },
         )
     }
 
@@ -46,7 +47,11 @@ class PublicAccountTest {
     @Test
     fun displayUserFavoriteContent() {
         val expected = Unit
-        assertEquals(expected, user.displayFavoriteContent())
+
+        user.addToFavoriteContent(movie)
+        user.addToFavoriteContent(series)
+
+        assertEquals(expected, user.displayLikedContent())
     }
 
     // Community
@@ -66,27 +71,33 @@ class PublicAccountTest {
     private val community = Community("The best movies",communityPeopleCount)
     @Test
     fun communityLikesIncreasing() {
-        val expected = communityPeopleCount + 1
+        val expectedForMovie = movie.likesCount + communityPeopleCount
+        val expectedForSerial = series.likesCount + communityPeopleCount
 
         community.likeIt(movie)
-        community.likeIt(serial)
+        community.likeIt(series)
 
         assertAll(
-            { assertEquals(expected, movie.likesCount) },
-            { assertEquals(expected, serial.likesCount) },
+            { assertEquals(expectedForMovie, movie.likesCount) },
+            { assertEquals(expectedForSerial, series.likesCount) },
         )
     }
 
     @Test
     fun displayCommunityData() {
         val expected = Unit
+
         assertEquals(expected, community.displayMainInformation())
     }
 
     @Test
     fun displayCommunityFavoriteContent() {
         val expected = Unit
-        assertEquals(expected, community.displayFavoriteContent())
+
+        community.addToFavoriteContent(movie)
+        community.addToFavoriteContent(series)
+
+        assertEquals(expected, community.displayLikedContent())
     }
 
     @Test
@@ -94,11 +105,11 @@ class PublicAccountTest {
         val expectedNotAvailable = AccessForWatching.UNAVAILABLE
 
         movie.accessForWatching = AccessForWatching.UNAVAILABLE
-        serial.accessForWatching = AccessForWatching.UNAVAILABLE
+        series.accessForWatching = AccessForWatching.UNAVAILABLE
 
         assertAll(
             { assertEquals(expectedNotAvailable, movie.accessForWatching) },
-            { assertEquals(expectedNotAvailable, serial.accessForWatching) },
+            { assertEquals(expectedNotAvailable, series.accessForWatching) },
         )
     }
 
@@ -108,11 +119,28 @@ class PublicAccountTest {
         community.likesCount = 20
 
         community.requestForAccess(movie)
-        community.requestForAccess(serial)
+        community.requestForAccess(series)
 
         assertAll(
             { assertEquals(expectedAvailable, movie.accessForWatching) },
-            { assertEquals(expectedAvailable, serial.accessForWatching) },
+            { assertEquals(expectedAvailable, series.accessForWatching) },
+        )
+    }
+
+    // PublicAccountTest
+
+    @Test
+    fun addContentToFavorite() {
+        val expectedFavoriteContent = mutableSetOf(movie, series)
+
+        user.addToFavoriteContent(movie)
+        user.addToFavoriteContent(series)
+        community.addToFavoriteContent(movie)
+        community.addToFavoriteContent(series)
+
+        assertAll(
+            { assertEquals(expectedFavoriteContent, user.favoriteContent) },
+            { assertEquals(expectedFavoriteContent, community.favoriteContent) }
         )
     }
 }

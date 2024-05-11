@@ -9,8 +9,8 @@ fun main() {
     val people = storage.users + storage.communities
 
     for (person in people.shuffled()) {
-        ContentPlayer.addUser(person)
-        ContentPlayer.likeOrNot()
+        contentPlayer.addUser(person)
+        contentPlayer.likeOrNot()
     }
 }
 
@@ -20,9 +20,11 @@ object ContentPlayer {
 
     fun addUser(user: PublicAccount) {
         currentUser = user
+        print("Current user - ")
+        currentUser.displayMainInformation()
     }
 
-    private val contents = storage.movies + storage.series
+    private val contents = storage.movies + storage.communitiesContent //+ storage.series
 
     fun likeOrNot() {
         println("like or skip?")
@@ -36,7 +38,8 @@ object ContentPlayer {
             }
             content.displayLikes()
         }
-        currentUser.displayFavoriteContent()
+        currentUser.displayMainInformation()
+        currentUser.displayLikedContent()
     }
 
     val command: () -> String = {
