@@ -25,6 +25,13 @@ abstract class Content (
     private val availableForWatchColor = "\u001b[38;2;92;99;175m"
     private val unAvailableForWatchColor = "\u001b[38;108;65;244m"
 
+    var review = "I haven't watched this movie yet."
+        get() = "$title: $field"
+        set(value) {
+            customizeReview(value)
+            field = value.trim()
+        }
+
     override fun displayMainInformation() {
         println("\n" + titleBgColor + titleTextColor + title + resetColor)
         println(description)

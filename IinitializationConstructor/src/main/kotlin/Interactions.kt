@@ -30,6 +30,17 @@ sealed interface Liked {
         }
     }
 
+    fun configureReview(command: String) {
+        if (this is Content) {
+            changeCustomizerByCommand(command)
+            when (this) {
+                is TvSeries -> this.review = "I watch this series over and over again"
+                is Movie -> this.review = "I've watched this movie 20 times already"
+                else -> println("This type of content does not have a review")
+            }
+        }
+    }
+
     fun displayLikes() {
         println("\nLikes - $likesCount\n")
     }

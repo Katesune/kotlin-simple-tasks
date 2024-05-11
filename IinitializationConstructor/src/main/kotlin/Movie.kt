@@ -16,13 +16,6 @@ class Movie (
         get() = dateFormatter.parse(initialYearOfProduction)
 
 
-    var review = "I haven't watched this movie yet."
-        get() = "$title: $field"
-        private set(value) {
-            println(review)
-            field = value.trim().capitalize()
-        }
-
     override val popularity: String
         get() = when (likesCount) {
             in 0..10 -> "not popular"
@@ -32,7 +25,7 @@ class Movie (
 
     init {
         review = "I'm watching this movie now."
-        println(review)
+        customizeReview(review)
     }
 
     constructor(
@@ -63,6 +56,8 @@ class Movie (
         duration = duration,
     ) {
         review = "I've watched this movie a few times, it's good."
-        println(review) }
+        customizeReview(review)}
 
 }
+
+

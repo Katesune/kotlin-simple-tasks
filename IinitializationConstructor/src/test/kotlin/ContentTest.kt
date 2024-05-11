@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.Serial
+import kotlin.math.sign
 
 class ContentTest {
     private val fullMovieTitle = "Parasite"
@@ -48,23 +49,56 @@ class ContentTest {
         )
     }
 
+    private val movie = Movie(fullMovieTitle, fullMovieYear, fullMovieGenres, fullMovieDescription, fullMovieDuration)
+
     @Test
     fun displayMovieData() {
-        val movie = Movie(fullMovieTitle, fullMovieYear, fullMovieGenres, fullMovieDescription, fullMovieDuration)
+        val expected = Unit
 
         assertAll(
-            { assertEquals(Unit, movie.displayMainInformation()) },
-            { assertEquals(Unit, movie.displayLikes()) },
+            { assertEquals(expected, movie.displayMainInformation()) },
+            { assertEquals(expected, movie.displayLikes()) },
+        )
+    }
+
+    private val series = TvSeries(fullSeriesTitle, fullSeriesGenres, fullSeriesDescription, fullSeriesEpisodesNum, fullSeriesEpisodeDuration)
+    @Test
+    fun displaySerialData() {
+        val expected = Unit
+
+        assertAll(
+            { assertEquals(expected, series.displayMainInformation()) },
+            { assertEquals(expected, series.displayLikes()) },
         )
     }
 
     @Test
-    fun displaySerialData() {
-        val series = TvSeries(fullSeriesTitle, fullSeriesGenres, fullSeriesDescription, fullSeriesEpisodesNum, fullSeriesEpisodeDuration)
+    fun changeConfigureMovieReview() {
+        val expected = Unit
+
+        val likeCommand = "like"
+        val skipCommand = "skip"
+        val errorCommand = "getReview"
 
         assertAll(
-            { assertEquals(Unit, series.displayMainInformation()) },
-            { assertEquals(Unit, series.displayLikes()) },
+            { assertEquals(expected, movie.configureReview(likeCommand)) },
+            { assertEquals(expected, movie.configureReview(skipCommand)) },
+            { assertEquals(expected, movie.configureReview(errorCommand)) },
+        )
+    }
+
+    @Test
+    fun changeConfigureSeriesReview() {
+        val expected = Unit
+
+        val likeCommand = "like"
+        val skipCommand = "skip"
+        val fakeCommand = "fake"
+
+        assertAll(
+            { assertEquals(expected, series.configureReview(likeCommand)) },
+            { assertEquals(expected, series.configureReview(skipCommand)) },
+            { assertEquals(expected, series.configureReview(fakeCommand)) },
         )
     }
 }
