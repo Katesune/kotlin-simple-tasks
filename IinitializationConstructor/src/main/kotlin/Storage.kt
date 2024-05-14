@@ -25,7 +25,7 @@ class Storage() {
 
     val movies = listOf(
         movieWithMainConstructor,
-        movieWithAdditionalConstructor
+        //movieWithAdditionalConstructor
     )
 
     private val tvSeriesWithMainConstructor = TvSeries(
@@ -57,7 +57,7 @@ class Storage() {
 
     val users = listOf(
         User("lili.akk@gmail.com", "Lili"),
-        // User("nina@mail.com", "Nina"),
+        //User("nina@mail.com", "Nina"),
        // User("ron@gmail.com", "Ron")
     )
 

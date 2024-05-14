@@ -1,6 +1,4 @@
-import PublicAccount
-import Storage
-
+import BadgeExchanger
 val storage = Storage()
 
 fun main() {
@@ -11,6 +9,11 @@ fun main() {
     for (person in people.shuffled()) {
         contentPlayer.addUser(person)
         contentPlayer.likeOrNot()
+    }
+
+    for (person in storage.communitiesContent.shuffled()) {
+        contentPlayer.addUser(person)
+        contentPlayer.exchangeOrNot()
     }
 }
 
@@ -47,6 +50,45 @@ object ContentPlayer {
         currentUser.displayMainInformation()
         currentUser.displayLikedContent()
 
+    }
+
+    fun exchangeOrNot() {
+        val currentUserBadge = currentUser.badgeCollection.badge
+        currentUserBadge.printBadgeName()
+        if (currentUserBadge is Exchanged) {
+            println("exchange or skip?")
+            when (command()) {
+                "exchange" -> {
+                    println("You have ${currentUser.likesCount} likes now")
+
+                    val receivedLikes = exchangeBadge(currentUserBadge)
+                    currentUser.likesCount += receivedLikes
+
+                    println("Your badge has been successfully exchanged for likes")
+                }
+                "skip" -> println("-------> next \n")
+                else -> throw IllegalStateException("No such command")
+            }
+
+            currentUser.displayMainInformation()
+            currentUser.displayLikes()
+
+        } else println("Your badge cannot be exchanged")
+
+    }
+
+    private fun <T> exchangeBadge(badge: T): Int where T: Badge, T: Exchanged {
+        val badgeExchanger = BadgeExchanger<T>()
+        badge.printValue()
+
+        println("Please, confirm the operation. If you agree with the exchange, please enter \"continue\". " +
+                "If you change your mind, please enter \"skip\".")
+
+        return when (command()) {
+            "continue" -> badgeExchanger.exchange(badge)
+            "skip" -> 0
+            else -> throw IllegalStateException("No such command")
+        }
     }
 
     val command: () -> String = {

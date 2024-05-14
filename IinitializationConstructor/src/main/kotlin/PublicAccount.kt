@@ -1,9 +1,12 @@
+import kotlin.random.Random
+
 abstract class PublicAccount(
 
 ) : Tracked, Liked {
     override var likesCount = 0
 
     abstract val favoriteContent: MutableSet<Liked>
+    abstract val badgeCollection: BadgeCollection<Badge>
 
     fun addToFavoriteContent(content: Liked) {
         favoriteContent += content
@@ -27,6 +30,7 @@ class User (
     val nickName: String,
 ): PublicAccount() {
     override val favoriteContent = mutableSetOf<Liked>()
+    override val badgeCollection = BadgeCollection.getRandomBadge()
 
     init {
         require(email.isNotBlank()) { "The email should not be blank." }
@@ -46,6 +50,7 @@ class Community (
 ): PublicAccount() {
     override var likesCount = peopleCount
     override val favoriteContent = mutableSetOf<Liked>()
+    override val badgeCollection = BadgeCollection.getRandomBadge()
 
     init {
         require(title.isNotBlank()) { "The title should not be blank." }
