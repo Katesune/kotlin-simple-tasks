@@ -1,10 +1,6 @@
-Переработка старого задания на Kotlin 
+Переработка интерпретатора языка COW(https://esolangs.org/wiki/COW) с Java на Kotlin;
 
-Старое решение - https://github.com/Katesune/theory-and-practice-of-pi-langs/tree/main/cow
-
-!В этом задании нет отработки новых концепций, оно написано, чтобы "привыкнуть" к Kotlin
-
-Задание - Разработать интерпретатор языка COW(https://esolangs.org/wiki/COW).
+Исходный интерпретатор - https://github.com/Katesune/theory-and-practice-of-pi-langs/tree/main/cow
 
 Операторы языка COW:
 
